@@ -43,7 +43,7 @@
 #include "osx/DarwinUtils.h"
 #include "osx/CocoaInterface.h"
 #endif
-#include "powermanagement/PowerManager.h"
+#include "api/PowerService.h"
 
 CSysInfo g_sysinfo;
 
@@ -105,8 +105,9 @@ CStdString CSysInfoJob::GetVideoEncoder()
 
 CStdString CSysInfoJob::GetBatteryLevel()
 {
+  CServiceProxy<CPowerService> pm;
   CStdString strVal;
-  strVal.Format("%d%%", g_powerManager.BatteryLevel());
+  strVal.Format("%d%%", (int)pm->GetProperty("BatteryLevel").asInteger());
   return strVal;
 }
 

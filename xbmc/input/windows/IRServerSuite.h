@@ -25,7 +25,9 @@
 #include "IrssMessage.h"
 #include "threads/Thread.h"
 
-class CRemoteControl : CThread
+#include "api/PowerService.h"
+
+class CRemoteControl : CThread, private CPowerServiceCallback
 {
 public:
   CRemoteControl();
@@ -63,6 +65,11 @@ private:
   void Close();
 
   bool HandleRemoteEvent(CIrssMessage& message);
+
+  virtual void OnSuspend();
+  virtual void OnHibernate();
+  virtual void OnWake();
+  void OnSleep();
 };
 
 extern CRemoteControl g_RemoteControl;

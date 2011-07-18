@@ -43,7 +43,7 @@
 #include "windowing/WindowingFactory.h"
 #include "GUIInfoManager.h"
 
-#include "powermanagement/PowerManager.h"
+#include "api/PowerService.h"
 
 #ifdef _WIN32
 #include "WIN32Util.h"
@@ -206,6 +206,7 @@ void CApplicationMessenger::ProcessMessages()
 
 void CApplicationMessenger::ProcessMessage(ThreadMessage *pMsg)
 {
+  CServiceProxy<CPowerService> pm;
   switch (pMsg->dwMessage)
   {
     case TMSG_SHUTDOWN:
@@ -238,7 +239,7 @@ void CApplicationMessenger::ProcessMessage(ThreadMessage *pMsg)
 case TMSG_POWERDOWN:
       {
         g_application.Stop(EXITCODE_POWERDOWN);
-        g_powerManager.Powerdown();
+       pm->Powerdown();
       }
       break;
 
@@ -250,13 +251,13 @@ case TMSG_POWERDOWN:
 
     case TMSG_HIBERNATE:
       {
-        g_powerManager.Hibernate();
+        pm->Hibernate();
       }
       break;
 
     case TMSG_SUSPEND:
       {
-        g_powerManager.Suspend();
+        pm->Suspend();
       }
       break;
 
@@ -264,7 +265,7 @@ case TMSG_POWERDOWN:
     case TMSG_RESET:
       {
         g_application.Stop(EXITCODE_REBOOT);
-        g_powerManager.Reboot();
+        pm->Reboot();
       }
       break;
 

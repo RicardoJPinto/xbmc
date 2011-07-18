@@ -23,6 +23,7 @@
 
 #include "system.h" // for HAS_DVD_DRIVE et. al.
 #include "XBApplicationEx.h"
+#include "api/PowerService.h"
 
 #include "guilib/IMsgTargetCallback.h"
 #include "threads/Condition.h"
@@ -385,6 +386,23 @@ protected:
 #ifdef HAS_EVENT_SERVER
   std::map<std::string, std::map<int, float> > m_lastAxisMap;
 #endif
+
+private:
+  class CPowerCallback : public CPowerServiceCallback
+  {
+  public:
+    CPowerCallback();
+    ~CPowerCallback();
+
+    virtual void OnSuspend();
+    virtual void OnHibernate();
+    virtual void OnWake();
+    virtual void OnLowBattery();
+
+  private:
+    void OnSleep();
+  };
+  CPowerCallback m_powerCallback;
 };
 
 extern CApplication g_application;

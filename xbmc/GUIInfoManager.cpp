@@ -54,7 +54,7 @@
 #include "playlists/PlayList.h"
 #include "utils/TuxBoxUtil.h"
 #include "windowing/WindowingFactory.h"
-#include "powermanagement/PowerManager.h"
+#include "api/PowerService.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "guilib/LocalizeStrings.h"
@@ -1631,6 +1631,7 @@ CStdString CGUIInfoManager::GetLabel(int info, int contextWindow)
 // tries to get a integer value for use in progressbars/sliders and such
 int CGUIInfoManager::GetInt(int info, int contextWindow) const
 {
+  CServiceProxy<CPowerService> pm;
   switch( info )
   {
     case PLAYER_VOLUME:
@@ -1709,7 +1710,7 @@ int CGUIInfoManager::GetInt(int info, int contextWindow) const
     case SYSTEM_CPU_USAGE:
       return g_cpuInfo.getUsedPercentage();
     case SYSTEM_BATTERY_LEVEL:
-      return g_powerManager.BatteryLevel();
+      return (int)pm->GetProperty("BatteryLevel").asInteger();
   }
   return 0;
 }
@@ -1723,6 +1724,7 @@ bool CGUIInfoManager::GetBool(int condition1, int contextWindow, const CGUIListI
     return bReturn;
 
   int condition = abs(condition1);
+  CServiceProxy<CPowerService> pm;
 
   if(condition >= COMBINED_VALUES_START && (condition - COMBINED_VALUES_START) < (int)(m_CombinedValues.size()) )
   {
@@ -1792,13 +1794,13 @@ bool CGUIInfoManager::GetBool(int condition1, int contextWindow, const CGUIListI
     bReturn = g_mediaManager.GetDriveStatus() == DRIVE_OPEN;
 #endif
   else if (condition == SYSTEM_CAN_POWERDOWN)
-    bReturn = g_powerManager.CanPowerdown();
+    bReturn = pm->GetProperty("CanPowerdown").asBoolean();
   else if (condition == SYSTEM_CAN_SUSPEND)
-    bReturn = g_powerManager.CanSuspend();
+    bReturn = pm->GetProperty("CanSuspend").asBoolean();
   else if (condition == SYSTEM_CAN_HIBERNATE)
-    bReturn = g_powerManager.CanHibernate();
+    bReturn = pm->GetProperty("CanHibernate").asBoolean();
   else if (condition == SYSTEM_CAN_REBOOT)
-    bReturn = g_powerManager.CanReboot();
+    bReturn = pm->GetProperty("CanReboot").asBoolean();
 
   else if (condition == PLAYER_SHOWINFO)
     bReturn = m_playerShowInfo;

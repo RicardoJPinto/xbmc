@@ -33,6 +33,7 @@ using namespace ANNOUNCEMENT;
 
 CCriticalSection CAnnouncementManager::m_critSection;
 vector<IAnnouncer *> CAnnouncementManager::m_announcers;
+CPowerServiceAnnouncementCallback CAnnouncementManager::m_powerCallback;
 
 void CAnnouncementManager::AddAnnouncer(IAnnouncer *listener)
 {
@@ -103,4 +104,16 @@ void CAnnouncementManager::Announce(EAnnouncementFlag flag, const char *sender, 
     object["id"] = id;
 
   Announce(flag, sender, message, object);
+}
+
+CPowerServiceAnnouncementCallback::CPowerServiceAnnouncementCallback()
+{
+  CServiceProxy<CPowerService> service;
+  service->AttachCallback((CPowerServiceCallback *)this);
+}
+
+CPowerServiceAnnouncementCallback::~CPowerServiceAnnouncementCallback()
+{
+  CServiceProxy<CPowerService> service;
+  service->AttachCallback((CPowerServiceCallback *)this);
 }

@@ -296,6 +296,7 @@
     <ClCompile Include="..\..\xbmc\addons\Repository.cpp" />
     <ClCompile Include="..\..\xbmc\addons\Service.cpp" />
     <ClCompile Include="..\..\xbmc\addons\Skin.cpp" />
+    <ClCompile Include="..\..\xbmc\api\PowerService.cpp" />
     <ClCompile Include="..\..\xbmc\api\TestService.cpp" />
     <ClCompile Include="..\..\xbmc\Application.cpp" />
     <ClCompile Include="..\..\xbmc\ApplicationMessenger.cpp" />
@@ -691,7 +692,6 @@
     <ClCompile Include="..\..\xbmc\playlists\PlayListXML.cpp" />
     <ClCompile Include="..\..\xbmc\playlists\SmartPlayList.cpp" />
     <ClCompile Include="..\..\xbmc\powermanagement\DPMSSupport.cpp" />
-    <ClCompile Include="..\..\xbmc\powermanagement\PowerManager.cpp" />
     <ClCompile Include="..\..\xbmc\powermanagement\windows\Win32PowerSyscall.cpp" />
     <ClCompile Include="..\..\xbmc\programs\GUIViewStatePrograms.cpp" />
     <ClCompile Include="..\..\xbmc\programs\GUIWindowPrograms.cpp" />
@@ -1186,6 +1186,7 @@
     <ClInclude Include="..\..\xbmc\addons\Repository.h" />
     <ClInclude Include="..\..\xbmc\addons\Service.h" />
     <ClInclude Include="..\..\xbmc\addons\Skin.h" />
+    <ClInclude Include="..\..\xbmc\api\PowerService.h" />
     <ClInclude Include="..\..\xbmc\api\ServiceBase.h" />
     <ClInclude Include="..\..\xbmc\api\ServiceProxy.h" />
     <ClInclude Include="..\..\xbmc\api\TestService.h" />
@@ -1531,7 +1532,6 @@
     <ClInclude Include="..\..\xbmc\playlists\SmartPlayList.h" />
     <ClInclude Include="..\..\xbmc\powermanagement\DPMSSupport.h" />
     <ClInclude Include="..\..\xbmc\powermanagement\IPowerSyscall.h" />
-    <ClInclude Include="..\..\xbmc\powermanagement\PowerManager.h" />
     <ClInclude Include="..\..\xbmc\powermanagement\windows\Win32PowerSyscall.h" />
     <ClInclude Include="..\..\xbmc\programs\GUIViewStatePrograms.h" />
     <ClInclude Include="..\..\xbmc\programs\GUIWindowPrograms.h" />

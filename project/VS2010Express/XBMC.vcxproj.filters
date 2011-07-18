@@ -1739,9 +1739,6 @@
     <ClCompile Include="..\..\xbmc\playlists\SmartPlayList.cpp">
       <Filter>playlists</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\powermanagement\PowerManager.cpp">
-      <Filter>powermanagement</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\powermanagement\windows\Win32PowerSyscall.cpp">
       <Filter>powermanagement\windows</Filter>
     </ClCompile>
@@ -2471,6 +2468,9 @@
     </ClCompile>
     <ClCompile Include="..\..\xbmc\InertialScrollingHandler.cpp" />
     <ClCompile Include="..\..\xbmc\api\TestService.cpp">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\api\PowerService.cpp">
       <Filter>api</Filter>
     </ClCompile>
   </ItemGroup>
@@ -4220,9 +4220,6 @@
     <ClInclude Include="..\..\xbmc\powermanagement\IPowerSyscall.h">
       <Filter>powermanagement</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xbmc\powermanagement\PowerManager.h">
-      <Filter>powermanagement</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xbmc\powermanagement\windows\Win32PowerSyscall.h">
       <Filter>powermanagement\windows</Filter>
     </ClInclude>
@@ -4964,6 +4961,9 @@
       <Filter>api</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\api\TestService.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\api\PowerService.h">
       <Filter>api</Filter>
     </ClInclude>
   </ItemGroup>

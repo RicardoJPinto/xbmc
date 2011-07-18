@@ -28,6 +28,18 @@
 
 using namespace std;
 
+ILCD::ILCD()
+{
+  CServiceProxy<CPowerService> service;
+  service->AttachCallback((CPowerServiceCallback *)this);
+}
+
+ILCD::~ILCD()
+{
+  CServiceProxy<CPowerService> service;
+  service->DetachCallback((CPowerServiceCallback *)this);
+}
+
 void ILCD::StringToLCDCharSet(CStdString& strText)
 {
 
@@ -502,4 +514,23 @@ void ILCD::DisableOnPlayback(bool playingVideo, bool playingAudio)
   if ((playingVideo && (m_disableOnPlay & DISABLE_ON_PLAY_VIDEO)) ||
       (playingAudio && (m_disableOnPlay & DISABLE_ON_PLAY_MUSIC)))
     SetBackLight(0);
+}
+
+void ILCD::OnHibernate()
+{
+  SetBackLight(0);
+}
+
+void ILCD::OnSuspend()
+{
+  SetBackLight(0);
+}
+
+void ILCD::OnWake()
+{
+  // restart and undim lcd
+  CLog::Log(LOGNOTICE, "%s: Restarting lcd", __FUNCTION__);
+  SetBackLight(1);
+  Stop();
+  Initialize();
 }

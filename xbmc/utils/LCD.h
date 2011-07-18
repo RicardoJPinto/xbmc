@@ -24,14 +24,17 @@
 #include "threads/Thread.h"
 #include "tinyXML/tinyxml.h"
 #include "guilib/GUILabelControl.h"  // for CInfoPortion
+#include "api/PowerService.h"
 
 class TiXmlNode;
 
 #define MAX_ROWS 20
 
-class ILCD : public CThread
+class ILCD : public CThread, private CPowerServiceCallback
 {
 public:
+  ILCD();
+  ~ILCD();
   enum LCD_MODE {
                         LCD_MODE_GENERAL = 0,
                         LCD_MODE_MUSIC,
@@ -69,6 +72,10 @@ protected:
   unsigned char GetLCDCharsetCharacter( UINT _nCharacter, int _nCharset=-1);
   void LoadMode(TiXmlNode *node, LCD_MODE mode);
 private:
+  virtual void OnHibernate();
+  virtual void OnSuspend();
+  virtual void OnWake();
+
   enum DISABLE_ON_PLAY { DISABLE_ON_PLAY_NONE = 0, DISABLE_ON_PLAY_VIDEO = 1, DISABLE_ON_PLAY_MUSIC = 2 };
   int m_disableOnPlay;
 

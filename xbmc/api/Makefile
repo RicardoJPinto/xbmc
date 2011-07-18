@@ -1,4 +1,5 @@
-SRCS=TestService.cpp
+SRCS=PowerService.cpp \
+     TestService.cpp \
 
 LIB=services.a
 

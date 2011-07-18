@@ -38,11 +38,17 @@ CRemoteControl::CRemoteControl()
   m_isConnecting = false;
   m_iAttempt     = 0;
   Reset();
+
+  CServiceProxy<CPowerService> service;
+  service->AttachCallback((CPowerServiceCallback *)this);
 }
 
 CRemoteControl::~CRemoteControl()
 {
   Close();
+  
+  CServiceProxy<CPowerService> service;
+  service->AttachCallback((CPowerServiceCallback *)this);
 }
 
 void CRemoteControl::Disconnect()
@@ -488,4 +494,28 @@ unsigned int CRemoteControl::GetHoldTime() const
 
 void CRemoteControl::setUsed(bool value)
 {
+}
+
+void CRemoteControl::OnSuspend()
+{
+  OnSleep();
+}
+
+void CRemoteControl::OnHibernate()
+{
+  OnSleep();
+}
+
+void CRemoteControl::OnWake()
+{
+  CLog::Log(LOGNOTICE, "%s: Restarting lirc", __FUNCTION__);
+  setUsed(true);
+  Initialize();
+}
+
+void CRemoteControl::OnSleep()
+{
+  CLog::Log(LOGNOTICE, "%s: Stopping lirc", __FUNCTION__);
+  Disconnect();
+  setUsed(false);
 }

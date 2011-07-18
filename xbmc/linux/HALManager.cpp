@@ -27,7 +27,6 @@
 #include "threads/SingleLock.h"
 #include "utils/URIUtils.h"
 #include "guilib/LocalizeStrings.h"
-#include "powermanagement/PowerManager.h"
 #include "settings/AdvancedSettings.h"
 #include "dialogs/GUIDialogKaiToast.h"
 
@@ -267,6 +266,7 @@ bool CHALManager::DeviceFromVolumeUdi(const char *udi, CStorageDevice *device)
     return false;
 
   LibHalVolume *tempVolume;
+
   LibHalDrive  *tempDrive;
   bool Created = false;
 

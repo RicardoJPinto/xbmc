@@ -23,10 +23,13 @@
 #include "IAnnouncer.h"
 #include "FileItem.h"
 #include "threads/CriticalSection.h"
+#include "api/PowerService.h"
 #include <vector>
 
 namespace ANNOUNCEMENT
 {
+  class CPowerServiceAnnouncementCallback;
+
   class CAnnouncementManager
   {
   public:
@@ -39,5 +42,20 @@ namespace ANNOUNCEMENT
   private:
     static std::vector<IAnnouncer *> m_announcers;
     static CCriticalSection m_critSection;
+    static CPowerServiceAnnouncementCallback m_powerCallback;
+  };
+
+  class CPowerServiceAnnouncementCallback : public CPowerServiceCallback
+  {
+  public:
+    CPowerServiceAnnouncementCallback();
+    ~CPowerServiceAnnouncementCallback();
+
+    virtual void OnPowerdown() { CAnnouncementManager::Announce(System, "xbmc", "OnPowerdown"); }
+    virtual void OnReboot() { CAnnouncementManager::Announce(System, "xbmc", "OnReboot"); }
+    virtual void OnHibernate() { CAnnouncementManager::Announce(System, "xbmc", "OnHibernate"); }
+    virtual void OnSuspend() { CAnnouncementManager::Announce(System, "xbmc", "OnSuspend"); }
+    virtual void OnWake() { CAnnouncementManager::Announce(System, "xbmc", "OnWake"); }
+    virtual void OnLowBattery() { CAnnouncementManager::Announce(System, "xbmc", "OnLowBattery"); }
   };
 }

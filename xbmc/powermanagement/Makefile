@@ -1,5 +1,4 @@
-SRCS=DPMSSupport.cpp \
-     PowerManager.cpp \
+SRCS=DPMSSupport.cpp
 
 LIB=powermanagement.a
 

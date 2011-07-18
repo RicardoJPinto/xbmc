@@ -80,12 +80,13 @@
 #endif
 #include "playlists/PlayList.h"
 #include "windowing/WindowingFactory.h"
-#include "powermanagement/PowerManager.h"
+#include "api/PowerService.h"
 #include "powermanagement/DPMSSupport.h"
 #include "settings/Settings.h"
 #include "settings/AdvancedSettings.h"
 #include "guilib/LocalizeStrings.h"
 #include "utils/CPUInfo.h"
+#include "utils/Weather.h"
 
 #include "input/KeyboardStat.h"
 #include "input/MouseStat.h"
@@ -601,7 +602,8 @@ bool CApplication::Create()
     return false;
   }
 
-  g_powerManager.Initialize();
+  // Initializes the power service and management
+  CServiceProxy<CPowerService> pm;
 
 #ifdef _WIN32
   CWIN32USBScan();
@@ -610,7 +612,7 @@ bool CApplication::Create()
   CLog::Log(LOGNOTICE, "load settings...");
 
   g_guiSettings.Initialize();  // Initialize default Settings - don't move
-  g_powerManager.SetDefaults();
+  pm->SetDefaults();
   if (!g_settings.Load())
     FatalErrorHandler(true, true, true);
 
@@ -4690,7 +4692,8 @@ void CApplication::ProcessSlow()
   printf("TestService %s\n", test->GetProperty("MyFirstProperty").asBoolean() ? "true" : "false");
   test->Test();
 
-  g_powerManager.ProcessEvents();
+  CServiceProxy<CPowerService> pm;
+  pm->ProcessEvents();
 
 #if defined(__APPLE__) &&  !defined(__arm__)
   // There is an issue on OS X that several system services ask the cursor to become visible
@@ -5380,3 +5383,62 @@ CPerformanceStats &CApplication::GetPerformanceStats()
   return m_perfStats;
 }
 #endif
+
+CApplication::CPowerCallback::CPowerCallback()
+{
+  CServiceProxy<CPowerService> service;
+  service->AttachCallback((CPowerServiceCallback *)this);
+}
+
+CApplication::CPowerCallback::~CPowerCallback()
+{
+  CServiceProxy<CPowerService> service;
+  service->DetachCallback((CPowerServiceCallback *)this);
+}
+
+void CApplication::CPowerCallback::OnSuspend()
+{
+  OnSleep();
+}
+
+void CApplication::CPowerCallback::OnHibernate()
+{
+  OnSleep();
+}
+
+void CApplication::CPowerCallback::OnWake()
+{
+  // reset out timers
+  g_application.ResetShutdownTimers();
+
+#ifdef HAS_SDL
+  if (g_Windowing.IsFullScreen())
+  {
+#ifdef _WIN32
+    ShowWindow(g_hWnd,SW_RESTORE);
+    SetForegroundWindow(g_hWnd);
+#else
+    // Hack to reclaim focus, thus rehiding system mouse pointer.
+    // Surely there's a better way?
+    g_graphicsContext.ToggleFullScreenRoot();
+    g_graphicsContext.ToggleFullScreenRoot();
+#endif
+  }
+  g_application.ResetScreenSaver();
+#endif
+
+  g_application.UpdateLibraries();
+  g_weatherManager.Refresh();
+}
+
+void CApplication::CPowerCallback::OnLowBattery()
+{
+  CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Warning, g_localizeStrings.Get(13050), "");
+}
+
+void CApplication::CPowerCallback::OnSleep()
+{
+  g_application.StopPlaying();
+  g_application.StopShutdownTimer();
+  g_application.StopScreenSaverTimer();
+}

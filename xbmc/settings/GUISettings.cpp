@@ -37,7 +37,7 @@
 #include "utils/log.h"
 #include "tinyXML/tinyxml.h"
 #include "windowing/WindowingFactory.h"
-#include "powermanagement/PowerManager.h"
+#include "api/PowerService.h"
 #include "cores/dvdplayer/DVDCodecs/Video/CrystalHD.h"
 #include "utils/PCMRemap.h"
 #include "guilib/GUIFont.h" // for FONT_STYLE_* definitions
@@ -501,14 +501,15 @@ void CGUISettings::Initialize()
   AddInt(pwm, "powermanagement.displaysoff", 1450, 0, 0, 5, 120, SPIN_CONTROL_INT_PLUS, MASK_MINS, TEXT_OFF);
   AddInt(pwm, "powermanagement.shutdowntime", 357, 0, 0, 5, 120, SPIN_CONTROL_INT_PLUS, MASK_MINS, TEXT_OFF);
 
+  CServiceProxy<CPowerService> pm;
   map<int,int> shutdown;
-  if (g_powerManager.CanPowerdown())
+  if (pm->GetProperty("CanPowerdown").asBoolean())
     shutdown.insert(make_pair(13005,POWERSTATE_SHUTDOWN));
 
-  if (g_powerManager.CanHibernate())
+  if (pm->GetProperty("CanHibernate").asBoolean())
     shutdown.insert(make_pair(13010,POWERSTATE_HIBERNATE));
 
-  if (g_powerManager.CanSuspend())
+  if (pm->GetProperty("CanSuspend").asBoolean())
     shutdown.insert(make_pair(13011,POWERSTATE_SUSPEND));
 
   // In standalone mode we default to another.

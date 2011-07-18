@@ -21,13 +21,14 @@
 
 #include "SystemOperations.h"
 #include "Application.h"
-#include "powermanagement/PowerManager.h"
+#include "api/PowerService.h"
 
 using namespace JSONRPC;
 
 JSON_STATUS CSystemOperations::Shutdown(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  if (g_powerManager.CanPowerdown())
+  CServiceProxy<CPowerService> pm;
+  if (pm->GetProperty("CanPowerdown").asBoolean())
   {
     g_application.getApplicationMessenger().Powerdown();
     return ACK;
@@ -38,7 +39,8 @@ JSON_STATUS CSystemOperations::Shutdown(const CStdString &method, ITransportLaye
 
 JSON_STATUS CSystemOperations::Suspend(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  if (g_powerManager.CanSuspend())
+  CServiceProxy<CPowerService> pm;
+  if (pm->GetProperty("CanSuspend").asBoolean())
   {
     g_application.getApplicationMessenger().Suspend();
     return ACK;
@@ -49,7 +51,8 @@ JSON_STATUS CSystemOperations::Suspend(const CStdString &method, ITransportLayer
 
 JSON_STATUS CSystemOperations::Hibernate(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  if (g_powerManager.CanHibernate())
+  CServiceProxy<CPowerService> pm;
+  if (pm->GetProperty("CanHibernate").asBoolean())
   {
     g_application.getApplicationMessenger().Hibernate();
     return ACK;
@@ -60,7 +63,8 @@ JSON_STATUS CSystemOperations::Hibernate(const CStdString &method, ITransportLay
 
 JSON_STATUS CSystemOperations::Reboot(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  if (g_powerManager.CanReboot())
+  CServiceProxy<CPowerService> pm;
+  if (pm->GetProperty("CanReboot").asBoolean())
   {
     g_application.getApplicationMessenger().Restart();
     return ACK;
@@ -108,16 +112,17 @@ JSON_STATUS CSystemOperations::GetInfoBooleans(const CStdString &method, ITransp
 
     // Need to override power management of whats in infomanager since jsonrpc
     // have a security layer aswell.
+    CServiceProxy<CPowerService> pm;
     if (field.Equals("system.canshutdown"))
-      result[parameterObject["booleans"][i].asString()] = (g_powerManager.CanPowerdown() && CanControlPower);
+      result[parameterObject["booleans"][i].asString()] = (pm->GetProperty("CanPowerdown").asBoolean() && CanControlPower);
     else if (field.Equals("system.canpowerdown"))
-      result[parameterObject["booleans"][i].asString()] = (g_powerManager.CanPowerdown() && CanControlPower);
+      result[parameterObject["booleans"][i].asString()] = (pm->GetProperty("CanPowerdown").asBoolean() && CanControlPower);
     else if (field.Equals("system.cansuspend"))
-      result[parameterObject["booleans"][i].asString()] = (g_powerManager.CanSuspend() && CanControlPower);
+      result[parameterObject["booleans"][i].asString()] = (pm->GetProperty("CanSuspend").asBoolean() && CanControlPower);
     else if (field.Equals("system.canhibernate"))
-      result[parameterObject["booleans"][i].asString()] = (g_powerManager.CanHibernate() && CanControlPower);
+      result[parameterObject["booleans"][i].asString()] = (pm->GetProperty("CanHibernate").asBoolean() && CanControlPower);
     else if (field.Equals("system.canreboot"))
-      result[parameterObject["booleans"][i].asString()] = (g_powerManager.CanReboot() && CanControlPower);
+      result[parameterObject["booleans"][i].asString()] = (pm->GetProperty("CanReboot").asBoolean() && CanControlPower);
     else
       info.push_back(parameterObject["booleans"][i].asString());
   }
