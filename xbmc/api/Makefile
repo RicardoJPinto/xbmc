@@ -1,4 +1,5 @@
-SRCS=PowerService.cpp \
+SRCS=AudioService.cpp \
+     PowerService.cpp \
      TestService.cpp \
 
 LIB=services.a

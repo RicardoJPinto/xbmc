@@ -53,6 +53,8 @@
 #include "TextureCache.h"
 #include "ThumbnailCache.h"
 
+#include "api/AudioService.h"
+
 #ifdef _WIN32
 extern "C" FILE *fopen_utf8(const char *_Filename, const char *_Mode);
 #else
@@ -1586,7 +1588,8 @@ int CXbmcHttp::xbmcSeekPercentage(int numParas, CStdString paras[], bool relativ
 
 int CXbmcHttp::xbmcMute()
 {
-  g_application.ToggleMute();
+  CServiceProxy<CAudioService> audio;
+  audio->ToggleMute();
   return SetResponse(openTag+"OK");
 }
 
@@ -1596,16 +1599,17 @@ int CXbmcHttp::xbmcSetVolume(int numParas, CStdString paras[])
     return SetResponse(openTag+"Error:Missing Parameter");
   else
   {
-    int iPercent = atoi(paras[0].c_str());
-    g_application.SetVolume(iPercent);
+    CServiceProxy<CAudioService> audio;
+    audio->SetVolume(atoi(paras[0].c_str()));
     return SetResponse(openTag+"OK");
   }
 }
 
 int CXbmcHttp::xbmcGetVolume()
 {
+  CServiceProxy<CAudioService> audio;
   CStdString tmp;
-  tmp.Format("%i",g_application.GetVolume());
+  tmp.Format("%i", audio->GetVolume());
   return SetResponse(openTag + tmp);
 }
 
@@ -2634,8 +2638,6 @@ int CXbmcHttp::xbmcSTSetting(int numParas, CStdString paras[])
         tmp.Format("%i",g_settings.m_nVolumeLevel);
       else if (paras[i]=="dynamicrangecompressionlevel")
         tmp.Format("%i",g_settings.m_dynamicRangeCompressionLevel);
-      else if (paras[i]=="premutevolumelevel")
-        tmp.Format("%i",g_settings.m_iPreMuteVolumeLevel);
       else if (paras[i]=="systemtimetotalup")
         tmp.Format("%i",g_settings.m_iSystemTimeTotalUp);
       else if (paras[i]=="mute")

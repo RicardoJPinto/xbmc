@@ -24,6 +24,7 @@
 #include "system.h" // for HAS_DVD_DRIVE et. al.
 #include "XBApplicationEx.h"
 #include "api/PowerService.h"
+#include "api/AudioService.h"
 
 #include "guilib/IMsgTargetCallback.h"
 #include "threads/Condition.h"
@@ -161,9 +162,6 @@ public:
   virtual void Process();
   void ProcessSlow();
   void ResetScreenSaver();
-  int GetVolume() const;
-  void SetVolume(long iValue, bool isPercentage = true);
-  void ToggleMute(void);
   void ShowVolumeBar(const CAction *action = NULL);
   int GetPlaySpeed() const;
   int GetSubtitleDelay() const;
@@ -344,10 +342,6 @@ protected:
   CCriticalSection m_frameMutex;
   XbmcThreads::ConditionVariable  m_frameCond;
 
-  void Mute();
-  void UnMute();
-
-  void SetHardwareVolume(long hardwareVolume);
   void UpdateLCD();
   void FatalErrorHandler(bool WindowSystemInitialized, bool MapDrives, bool InitNetwork);
 
@@ -403,6 +397,15 @@ private:
     void OnSleep();
   };
   CPowerCallback m_powerCallback;
+
+  class CAudioCallback : public CAudioServiceCallback
+  {
+  public:
+    CAudioCallback();
+    ~CAudioCallback();
+    virtual void OnPropertyChange(const std::string &name, const CVariant &property);
+  };
+  CAudioCallback m_audioCallback;
 };
 
 extern CApplication g_application;

@@ -2473,6 +2473,9 @@
     <ClCompile Include="..\..\xbmc\api\PowerService.cpp">
       <Filter>api</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\api\AudioService.cpp">
+      <Filter>api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\xbmc\win32\pch.h">
@@ -4964,6 +4967,9 @@
       <Filter>api</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xbmc\api\PowerService.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\api\AudioService.h">
       <Filter>api</Filter>
     </ClInclude>
   </ItemGroup>

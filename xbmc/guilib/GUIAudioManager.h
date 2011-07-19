@@ -24,6 +24,7 @@
 #include "threads/CriticalSection.h"
 #include "utils/log.h"
 #include "utils/StdString.h"
+#include "api/AudioService.h"
 
 #include <map>
 
@@ -34,7 +35,7 @@ class TiXmlNode;
 
 enum WINDOW_SOUND { SOUND_INIT = 0, SOUND_DEINIT };
 
-class CGUIAudioManager
+class CGUIAudioManager : private CAudioServiceCallback
 {
   class CWindowSounds
   {
@@ -45,24 +46,26 @@ class CGUIAudioManager
 
 public:
   CGUIAudioManager();
-          ~CGUIAudioManager();
+  ~CGUIAudioManager();
 
-          void        Initialize(int iDevice);
-          void        DeInitialize(int iDevice);
-
-          bool        Load();
-
-          void        PlayActionSound(const CAction& action);
-          void        PlayWindowSound(int id, WINDOW_SOUND event);
-          void        PlayPythonSound(const CStdString& strFileName);
-
-          void        FreeUnused();
-
-          void        Enable(bool bEnable);
-          void        SetVolume(int iLevel);
-          void        Stop();
+  void Initialize(int iDevice);
+  void DeInitialize(int iDevice);
+       
+  bool Load();
+       
+  void PlayActionSound(const CAction& action);
+  void PlayWindowSound(int id, WINDOW_SOUND event);
+  void PlayPythonSound(const CStdString& strFileName);
+       
+  void FreeUnused();
+       
+  void Enable(bool bEnable);
+  void SetVolume(int iLevel);
+  void Stop();
 private:
-          bool        LoadWindowSound(TiXmlNode* pWindowNode, const CStdString& strIdentifier, CStdString& strFile);
+  bool LoadWindowSound(TiXmlNode* pWindowNode, const CStdString& strIdentifier, CStdString& strFile);
+
+  virtual void OnPropertyChange(const std::string &name, const CVariant &property);
 
   typedef std::map<int, CStdString> actionSoundMap;
   typedef std::map<int, CWindowSounds> windowSoundMap;
@@ -70,18 +73,18 @@ private:
   typedef std::map<CStdString, CGUISound*> pythonSoundsMap;
   typedef std::map<int, CGUISound*> windowSoundsMap;
 
-  actionSoundMap      m_actionSoundMap;
-  windowSoundMap      m_windowSoundMap;
+  actionSoundMap m_actionSoundMap;
+  windowSoundMap m_windowSoundMap;
 
-  CGUISound*          m_actionSound;
-  windowSoundsMap     m_windowSounds;
-  pythonSoundsMap     m_pythonSounds;
+  CGUISound* m_actionSound;
+  windowSoundsMap m_windowSounds;
+  pythonSoundsMap m_pythonSounds;
 
-  CStdString          m_strMediaDir;
-  bool                m_bInitialized;
-  bool                m_bEnabled;
+  CStdString m_strMediaDir;
+  bool m_bInitialized;
+  bool m_bEnabled;
 
-  CCriticalSection    m_cs;
+  CCriticalSection m_cs;
 };
 
 extern CGUIAudioManager g_audioManager;

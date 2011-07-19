@@ -24,6 +24,7 @@
 #include "Key.h"
 #include "AudioContext.h"
 #include "GUISound.h"
+#include "settings/Settings.h"
 #include "settings/GUISettings.h"
 #include "input/ButtonTranslator.h"
 #include "threads/SingleLock.h"
@@ -44,11 +45,15 @@ CGUIAudioManager::CGUIAudioManager()
   m_bInitialized = false;
   m_bEnabled = false;
   m_actionSound=NULL;
+
+  CServiceProxy<CAudioService> service;
+  service->AttachCallback((CAudioServiceCallback *)this);
 }
 
 CGUIAudioManager::~CGUIAudioManager()
 {
-
+  CServiceProxy<CAudioService> service;
+  service->DetachCallback((CAudioServiceCallback *)this);
 }
 
 void CGUIAudioManager::Initialize(int iDevice)
@@ -443,4 +448,22 @@ void CGUIAudioManager::SetVolume(int iLevel)
 
     ++it1;
   }
+}
+
+void CGUIAudioManager::OnPropertyChange(const std::string &name, const CVariant &property)
+{
+  int volume = 0;
+  if (name.compare("Volume") == 0 || name.compare("Muted") == 0)
+  {
+    CServiceProxy<CAudioService> audio;
+    volume = audio->GetVolume(false);
+  }
+  else
+    return;
+
+#ifndef HAS_SDL_AUDIO
+  SetVolume(volume);
+#else
+  SetVolume((int)(128.f * (volume - VOLUME_MINIMUM) / (float)(VOLUME_MAXIMUM - VOLUME_MINIMUM)));
+#endif
 }

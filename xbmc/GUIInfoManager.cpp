@@ -54,7 +54,6 @@
 #include "playlists/PlayList.h"
 #include "utils/TuxBoxUtil.h"
 #include "windowing/WindowingFactory.h"
-#include "api/PowerService.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "guilib/LocalizeStrings.h"
@@ -76,6 +75,9 @@
 #include "utils/log.h"
 
 #include "addons/AddonManager.h"
+
+#include "api/PowerService.h"
+#include "api/AudioService.h"
 
 #define SYSHEATUPDATEINTERVAL 60000
 
@@ -1035,6 +1037,7 @@ CStdString CGUIInfoManager::GetLabel(int info, int contextWindow)
     return strLabel;
   }
 
+  CServiceProxy<CAudioService> audio;
   switch (info)
   {
   case WEATHER_CONDITIONS:
@@ -1064,7 +1067,7 @@ CStdString CGUIInfoManager::GetLabel(int info, int contextWindow)
     strLabel.Format("%02.2f", m_fps);
     break;
   case PLAYER_VOLUME:
-    strLabel.Format("%2.1f dB", (float)(g_settings.m_nVolumeLevel + g_settings.m_dynamicRangeCompressionLevel) * 0.01f);
+    strLabel.Format("%2.1f dB", (float)audio->GetVolume(false) * 0.01f);
     break;
   case PLAYER_SUBTITLE_DELAY:
     strLabel.Format("%2.3f s", g_settings.m_currentVideoSettings.m_SubtitleDelay);
@@ -1632,10 +1635,11 @@ CStdString CGUIInfoManager::GetLabel(int info, int contextWindow)
 int CGUIInfoManager::GetInt(int info, int contextWindow) const
 {
   CServiceProxy<CPowerService> pm;
+  CServiceProxy<CAudioService> audio;
   switch( info )
   {
     case PLAYER_VOLUME:
-      return g_application.GetVolume();
+      return audio->GetVolume();
     case PLAYER_SUBTITLE_DELAY:
       return g_application.GetSubtitleDelay();
     case PLAYER_AUDIO_DELAY:
@@ -1751,7 +1755,10 @@ bool CGUIInfoManager::GetBool(int condition1, int contextWindow, const CGUIListI
     bReturn = (pWindow && pWindow->IsMediaWindow());
   }
   else if (condition == PLAYER_MUTED)
-    bReturn = g_settings.m_bMute;
+  {
+    CServiceProxy<CAudioService> audio;
+    bReturn = audio->GetProperty("Muted").asBoolean();
+  }
   else if (condition >= LIBRARY_HAS_MUSIC && condition <= LIBRARY_HAS_MUSICVIDEOS)
     bReturn = GetLibraryBool(condition);
   else if (condition == LIBRARY_IS_SCANNING)

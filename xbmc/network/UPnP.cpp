@@ -57,6 +57,8 @@
 #include "utils/md5.h"
 #include "guilib/Key.h"
 
+#include "api/AudioService.h"
+
 using namespace std;
 using namespace MUSIC_INFO;
 using namespace XFILE;
@@ -1655,16 +1657,15 @@ CUPnPRenderer::UpdateState()
     if(state == "TRANSITIONING")
         return;
 
+    CServiceProxy<CAudioService> audio;
     CStdString buffer;
-    int volume;
-    if (g_settings.m_bMute) {
+    if (audio->GetProperty("Muted").asBoolean()) {
         rct->SetStateVariable("Mute", "1");
-        volume = g_settings.m_iPreMuteVolumeLevel;
     } else {
         rct->SetStateVariable("Mute", "0");
-        volume = g_application.GetVolume();
     }
 
+    int volume = audio->GetVolume();
     buffer.Format("%d", volume);
     rct->SetStateVariable("Volume", buffer.c_str());
 
@@ -1978,7 +1979,8 @@ CUPnPRenderer::OnSetVolume(PLT_ActionReference& action)
 {
     NPT_String volume;
     NPT_CHECK_SEVERE(action->GetArgumentValue("DesiredVolume", volume));
-    g_application.SetVolume(atoi((const char*)volume));
+    CServiceProxy<CAudioService> audio;
+    audio->SetVolume(atoi((const char*)volume));
     return NPT_SUCCESS;
 }
 
@@ -1990,8 +1992,11 @@ CUPnPRenderer::OnSetMute(PLT_ActionReference& action)
 {
     NPT_String mute;
     NPT_CHECK_SEVERE(action->GetArgumentValue("DesiredMute",mute));
-    if((mute == "1") ^ g_settings.m_bMute)
-        g_application.ToggleMute();
+    CServiceProxy<CAudioService> audio;
+    if(mute == "1")
+      audio->Mute();
+    else
+      audio->Unmute();
     return NPT_SUCCESS;
 }
 

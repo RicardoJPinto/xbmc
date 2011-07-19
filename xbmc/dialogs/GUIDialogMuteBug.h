@@ -22,12 +22,13 @@
  */
 
 #include "guilib/GUIDialog.h"
+#include "api/AudioService.h"
 
-class CGUIDialogMuteBug : public CGUIDialog
+class CGUIDialogMuteBug : public CGUIDialog, private CAudioServiceCallback
 {
 public:
   CGUIDialogMuteBug(void);
   virtual ~CGUIDialogMuteBug(void);
-protected:
-  virtual void UpdateVisibility();
+private:
+  virtual void OnPropertyChange(const std::string &name, const CVariant &property);
 };

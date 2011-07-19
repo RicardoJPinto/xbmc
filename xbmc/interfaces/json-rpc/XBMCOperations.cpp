@@ -25,22 +25,25 @@
 #include "FileItem.h"
 #include "Util.h"
 #include "utils/log.h"
+#include "api/AudioService.h"
 
 using namespace JSONRPC;
 
 JSON_STATUS CXBMCOperations::GetVolume(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  CVariant val = g_application.GetVolume();
+  CServiceProxy<CAudioService> audio;
+  CVariant val = audio->GetVolume();
   result.swap(val);
   return OK;
 }
 
 JSON_STATUS CXBMCOperations::SetVolume(const CStdString &method, ITransportLayer *transport, IClient *client, const CVariant &parameterObject, CVariant &result)
 {
-  int oldVolume = g_application.GetVolume();
+  CServiceProxy<CAudioService> audio;
+  int oldVolume = audio->GetVolume();
   int volume = (int)parameterObject["value"].asInteger();
   
-  g_application.SetVolume(volume);
+  audio->SetVolume(volume);
 
   g_application.getApplicationMessenger().ShowVolumeBar(oldVolume < volume);
 

@@ -28,6 +28,7 @@
 #include "utils/log.h"
 #include "Util.h"
 #include "guilib/LocalizeStrings.h"
+#include "api/AudioService.h"
 
 static const char *ContextStateToString(pa_context_state s)
 {
@@ -182,7 +183,8 @@ bool CPulseAudioDirectSound::Initialize(IAudioCallback* pCallback, const CStdStr
   m_bPassthrough = bPassthrough;
   m_uiBytesPerSecond = uiSamplesPerSec * (uiBitsPerSample / 8) * iChannels;
 
-  m_nCurrentVolume = g_settings.m_nVolumeLevel;
+  CServiceProxy<CAudioService> audio;
+  m_nCurrentVolume = audio->GetVolume(false);
 
   m_dwPacketSize = iChannels*(uiBitsPerSample/8)*512;
   m_dwNumPackets = 16;

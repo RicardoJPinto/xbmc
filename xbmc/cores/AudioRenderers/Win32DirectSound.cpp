@@ -29,6 +29,7 @@
 #include "utils/log.h"
 #include "utils/TimeUtils.h"
 #include "utils/CharsetConverter.h"
+#include "api/AudioService.h"
 
 #pragma comment(lib, "dxguid.lib")
 
@@ -114,7 +115,8 @@ bool CWin32DirectSound::Initialize(IAudioCallback* pCallback, const CStdString& 
   m_uiBitsPerSample = uiBitsPerSample;
   m_Passthrough = bAudioPassthrough;
 
-  m_nCurrentVolume = g_settings.m_nVolumeLevel;
+  CServiceProxy<CAudioService> audio;
+  m_nCurrentVolume = audio->GetVolume(false);
 
   WAVEFORMATEXTENSIBLE wfxex = {0};
 
@@ -206,7 +208,7 @@ bool CWin32DirectSound::Initialize(IAudioCallback* pCallback, const CStdString& 
 
   m_pBuffer->Stop();
 
-  if (DSERR_CONTROLUNAVAIL == m_pBuffer->SetVolume(g_settings.m_nVolumeLevel))
+  if (DSERR_CONTROLUNAVAIL == m_pBuffer->SetVolume(audio->GetVolume(false)))
     CLog::Log(LOGINFO, __FUNCTION__": Volume control is unavailable in the current configuration");
 
   m_bIsAllocated = true;

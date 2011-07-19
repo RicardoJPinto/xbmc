@@ -31,6 +31,7 @@
 #include "Application.h"
 #include "threads/SingleLock.h"
 #include "utils/log.h"
+#include "api/AudioService.h"
 #include <map>
 #include <queue>
 
@@ -426,7 +427,8 @@ DBusHandlerResult CDbusServer::player_VolumeGet( DBusConnection *connection, DBu
 {
   REPLY_INIT;
   OUT_ARGUMENTS;
-  dbus_int32_t i_dbus_vol = lrint(p_application->GetVolume());
+  CServiceProxy<CAudioService> audio;
+  dbus_int32_t i_dbus_vol = lrint(audio->GetVolume());
   ADD_INT32( &i_dbus_vol );
   REPLY_SEND;
 }
@@ -452,7 +454,8 @@ DBusHandlerResult CDbusServer::player_VolumeSet( DBusConnection *connection, DBu
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
   }
 
-  p_application->SetVolume(i_dbus_vol);
+  CServiceProxy<CAudioService> audio;
+  audio->SetVolume(i_dbus_vol);
   REPLY_SEND;
 }
 

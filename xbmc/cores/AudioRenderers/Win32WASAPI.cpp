@@ -35,6 +35,7 @@
 #include "utils/log.h"
 #include "utils/TimeUtils.h"
 #include "utils/CharsetConverter.h"
+#include "api/AudioService.h"
 
 #pragma comment(lib, "Avrt.lib")
 
@@ -141,7 +142,8 @@ bool CWin32WASAPI::Initialize(IAudioCallback* pCallback, const CStdString& devic
   m_uiBitsPerSample = uiBitsPerSample;
   m_bPassthrough = bAudioPassthrough;
 
-  m_nCurrentVolume = g_settings.m_nVolumeLevel;
+  CServiceProxy<CAudioService> audio;
+  m_nCurrentVolume = audio->GetVolume(false);
   m_pcmAmplifier.SetVolume(m_nCurrentVolume);
   
   WAVEFORMATEXTENSIBLE wfxex = {0};

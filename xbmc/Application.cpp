@@ -80,7 +80,6 @@
 #endif
 #include "playlists/PlayList.h"
 #include "windowing/WindowingFactory.h"
-#include "api/PowerService.h"
 #include "powermanagement/DPMSSupport.h"
 #include "settings/Settings.h"
 #include "settings/AdvancedSettings.h"
@@ -281,6 +280,10 @@
 #ifdef HAS_IRSERVERSUITE
   #include "input/windows/IRServerSuite.h"
 #endif
+
+// API includes
+#include "api/PowerService.h"
+#include "api/AudioService.h"
 
 using namespace std;
 using namespace ADDON;
@@ -1169,9 +1172,8 @@ bool CApplication::Initialize()
   CLog::Log(LOGINFO, "removing tempfiles");
   CUtil::RemoveTempFiles();
 
-  //  Show mute symbol
-  if (g_settings.m_bMute)
-    Mute();
+  // Initialize the audio service
+  CServiceProxy<CAudioService> audio;
 
   // if the user shutoff the xbox during music scan
   // restore the settings
@@ -2512,7 +2514,8 @@ bool CApplication::OnAction(const CAction &action)
   }
   if (action.GetID() == ACTION_MUTE)
   {
-    ToggleMute();
+    CServiceProxy<CAudioService> audio;
+    audio->ToggleMute();
     return true;
   }
 
@@ -2540,14 +2543,11 @@ bool CApplication::OnAction(const CAction &action)
     if (!m_pPlayer || !m_pPlayer->IsPassthrough())
     {
       // increase or decrease the volume
-      int volume;
-      if (g_settings.m_bMute)
-      {
-        volume = (int)((float)g_settings.m_iPreMuteVolumeLevel * 0.01f * (VOLUME_MAXIMUM - VOLUME_MINIMUM) + VOLUME_MINIMUM);
-        UnMute();
-      }
-      else
-        volume = g_settings.m_nVolumeLevel + g_settings.m_dynamicRangeCompressionLevel;
+      CServiceProxy<CAudioService> audio;
+      if (audio->GetProperty("Muted").asBoolean())
+        audio->Unmute();
+
+      int volume = audio->GetVolume(false);
 
       // calculate speed so that a full press will equal 1 second from min to max
       float speed = float(VOLUME_MAXIMUM - VOLUME_MINIMUM);
@@ -2561,7 +2561,7 @@ bool CApplication::OnAction(const CAction &action)
       else
         volume -= (int)((float)fabs(action.GetAmount()) * action.GetAmount() * speed);
 
-      SetVolume(volume, false);
+      audio->SetVolume(volume, false);
     }
     // show visual feedback of volume change...
     ShowVolumeBar(&action);
@@ -4905,77 +4905,6 @@ void CApplication::ShowVolumeBar(const CAction *action)
   }
 }
 
-void CApplication::ToggleMute(void)
-{
-  if (g_settings.m_bMute)
-    UnMute();
-  else
-    Mute();
-}
-
-void CApplication::Mute()
-{
-  g_settings.m_iPreMuteVolumeLevel = GetVolume();
-  SetVolume(0);
-  g_settings.m_bMute = true;
-}
-
-void CApplication::UnMute()
-{
-  SetVolume(g_settings.m_iPreMuteVolumeLevel);
-  g_settings.m_iPreMuteVolumeLevel = 0;
-  g_settings.m_bMute = false;
-}
-
-void CApplication::SetVolume(long iValue, bool isPercentage /* = true */)
-{
-  // convert the percentage to a mB (milliBell) value (*100 for dB)
-  if (isPercentage)
-    iValue = (long)((float)iValue * 0.01f * (VOLUME_MAXIMUM - VOLUME_MINIMUM) + VOLUME_MINIMUM);
-
-  SetHardwareVolume(iValue);
-#ifndef HAS_SDL_AUDIO
-  g_audioManager.SetVolume(g_settings.m_nVolumeLevel);
-#else
-  g_audioManager.SetVolume((int)(128.f * (g_settings.m_nVolumeLevel - VOLUME_MINIMUM) / (float)(VOLUME_MAXIMUM - VOLUME_MINIMUM)));
-#endif
-}
-
-void CApplication::SetHardwareVolume(long hardwareVolume)
-{
-  // TODO DRC
-  if (hardwareVolume >= VOLUME_MAXIMUM) // + VOLUME_DRC_MAXIMUM
-    hardwareVolume = VOLUME_MAXIMUM;// + VOLUME_DRC_MAXIMUM;
-  if (hardwareVolume <= VOLUME_MINIMUM)
-    hardwareVolume = VOLUME_MINIMUM;
-
-  // update our settings
-  if (hardwareVolume > VOLUME_MAXIMUM)
-  {
-    g_settings.m_dynamicRangeCompressionLevel = hardwareVolume - VOLUME_MAXIMUM;
-    g_settings.m_nVolumeLevel = VOLUME_MAXIMUM;
-  }
-  else
-  {
-    g_settings.m_dynamicRangeCompressionLevel = 0;
-    g_settings.m_nVolumeLevel = hardwareVolume;
-  }
-
-  // and tell our player to update the volume
-  if (m_pPlayer)
-  {
-    m_pPlayer->SetVolume(g_settings.m_nVolumeLevel);
-    // TODO DRC
-//    m_pPlayer->SetDynamicRangeCompression(g_settings.m_dynamicRangeCompressionLevel);
-  }
-}
-
-int CApplication::GetVolume() const
-{
-  // converts the hardware volume (in mB) to a percentage
-  return int(((float)(g_settings.m_nVolumeLevel + g_settings.m_dynamicRangeCompressionLevel - VOLUME_MINIMUM)) / (VOLUME_MAXIMUM - VOLUME_MINIMUM)*100.0f + 0.5f);
-}
-
 int CApplication::GetSubtitleDelay() const
 {
   // converts subtitle delay to a percentage
@@ -5012,7 +4941,8 @@ void CApplication::SetPlaySpeed(int iSpeed)
   m_pPlayer->ToFFRW(m_iPlaySpeed);
   if (m_iPlaySpeed == 1)
   { // restore volume
-    m_pPlayer->SetVolume(g_settings.m_nVolumeLevel);
+    CServiceProxy<CAudioService> audio;
+    m_pPlayer->SetVolume(audio->GetVolume(false));
   }
   else
   { // mute volume
@@ -5441,4 +5371,34 @@ void CApplication::CPowerCallback::OnSleep()
   g_application.StopPlaying();
   g_application.StopShutdownTimer();
   g_application.StopScreenSaverTimer();
+}
+
+CApplication::CAudioCallback::CAudioCallback()
+{
+  CServiceProxy<CAudioService> service;
+  service->AttachCallback((CAudioServiceCallback *)this);
+}
+
+CApplication::CAudioCallback::~CAudioCallback()
+{
+  CServiceProxy<CAudioService> service;
+  service->DetachCallback((CAudioServiceCallback *)this);
+}
+
+void CApplication::CAudioCallback::OnPropertyChange(const std::string &name, const CVariant &property)
+{
+  CServiceProxy<CAudioService> audio;
+  int volume = 0;
+  if (name.compare("Volume") == 0 || name.compare("Muted") == 0)
+    volume = audio->GetVolume(false);
+  else
+    return;
+
+  // and tell our player to update the volume
+  if (g_application.m_pPlayer)
+  {
+    g_application.m_pPlayer->SetVolume(volume);
+    // TODO DRC
+//    m_pPlayer->SetDynamicRangeCompression((int)audio->GetProperty("DynamicRangeCompressionLevel").asInteger());
+  }
 }

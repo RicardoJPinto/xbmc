@@ -29,6 +29,9 @@
 #include <SDL/SDL_mixer.h>
 #endif
 #include "filesystem/SpecialProtocol.h"
+
+#include "api/AudioService.h"
+
 #ifndef HAS_SDL_AUDIO
 
 typedef struct
@@ -181,7 +184,8 @@ bool CGUISound::CreateBuffer(LPWAVEFORMATEX wfx, int iLength)
   }
 
   //  Make effects as loud as possible
-  m_soundBuffer->SetVolume(g_settings.m_nVolumeLevel);
+  CServiceProxy<CAudioService> audio;
+  m_soundBuffer->SetVolume(audio->GetVolume(false));
 
   return true;
 }

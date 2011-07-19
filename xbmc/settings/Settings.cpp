@@ -96,7 +96,6 @@ void CSettings::Initialize()
 
   m_nVolumeLevel = 0;
   m_dynamicRangeCompressionLevel = 0;
-  m_iPreMuteVolumeLevel = 0;
   m_bMute = false;
   m_fZoomAmount = 1.0f;
   m_fPixelRatio = 1.0f;

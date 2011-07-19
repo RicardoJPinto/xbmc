@@ -29,15 +29,24 @@ CGUIDialogMuteBug::CGUIDialogMuteBug(void)
     : CGUIDialog(WINDOW_DIALOG_MUTE_BUG, "DialogMuteBug.xml")
 {
   m_loadOnDemand = false;
+
+  CServiceProxy<CAudioService> service;
+  service->AttachCallback((CAudioServiceCallback *)this);
 }
 
 CGUIDialogMuteBug::~CGUIDialogMuteBug(void)
-{}
-
-void CGUIDialogMuteBug::UpdateVisibility()
 {
-  if (g_settings.m_bMute)
-    Show();
-  else
-    Close();
+  CServiceProxy<CAudioService> service;
+  service->DetachCallback((CAudioServiceCallback *)this);
+}
+
+void CGUIDialogMuteBug::OnPropertyChange(const std::string &name, const CVariant &property)
+{
+  if (name.compare("Muted") == 0)
+  {
+    if (property.asBoolean())
+      Show();
+    else
+      Close();
+  }
 }

@@ -85,6 +85,8 @@
 #include "cdrip/CDDARipper.h"
 #endif
 
+#include "api/AudioService.h"
+
 #include <vector>
 
 using namespace std;
@@ -793,11 +795,13 @@ int CBuiltins::Execute(const CStdString& execString)
   }
   else if (execute.Equals("mute"))
   {
-    g_application.ToggleMute();
+    CServiceProxy<CAudioService> audio;
+    audio->ToggleMute();
   }
   else if (execute.Equals("setvolume"))
   {
-    g_application.SetVolume(atoi(parameter.c_str()));
+    CServiceProxy<CAudioService> audio;
+    audio->SetVolume(atoi(parameter.c_str()));
   }
   else if (execute.Equals("playlist.playoffset"))
   {
