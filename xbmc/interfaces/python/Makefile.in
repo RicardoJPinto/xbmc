@@ -1,4 +1,5 @@
-SRCS=XBPython.cpp \
+SRCS=PythonInterpreter.cpp \
+     XBPython.cpp \
      XBPyThread.cpp
 
 LIB=python.a

@@ -3448,6 +3448,7 @@ void CApplication::Stop(int exitCode)
 #ifdef HAS_PYTHON
   CLog::Log(LOGNOTICE, "stop python");
   g_pythonParser.FreeResources();
+  CPythonInterpreter::Finalize();
 #endif
 #ifdef HAS_LCD
     if (g_lcd)

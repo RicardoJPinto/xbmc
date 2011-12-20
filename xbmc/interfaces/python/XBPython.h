@@ -35,11 +35,8 @@ typedef struct {
   XBPyThread *pyThread;
 }PyElem;
 
-class LibraryLoader;
-
 typedef std::vector<PyElem> PyList;
 typedef std::vector<PVOID> PlayerCallbackList;
-typedef std::vector<LibraryLoader*> PythonExtensionLibraries;
 
 class XBPython : public IPlayerCallback
 {
@@ -54,9 +51,6 @@ public:
   virtual void OnQueueNextItem() {};
   void RegisterPythonPlayerCallBack(IPlayerCallback* pCallback);
   void UnregisterPythonPlayerCallBack(IPlayerCallback* pCallback);
-  void Initialize();
-  void Finalize();
-  void FinalizeScript();
   void FreeResources();
   void Process();
 
@@ -86,10 +80,6 @@ public:
   // remove modules and references when interpreter done
   void DeInitializeInterpreter();
 
-  void RegisterExtensionLib(LibraryLoader *pLib);
-  void UnregisterExtensionLib(LibraryLoader *pLib);
-  void UnloadExtensionLibs();
-
   //only should be called from thread which is running the script
   void  stopScript(int scriptId);
 
@@ -99,20 +89,14 @@ public:
   // returns -1 if no scripts exist with specified filename
   int getScriptId(const CStdString &strFile);
 
-  void* getMainThreadState();
+  static void InitializeModules();
+  static void DeinitializeModules();
 
   bool m_bLogin;
   CCriticalSection    m_critSection;
-private:
-  bool              FileExist(const char* strFile);
 
-  int               m_nextid;
-  void*             m_mainThreadState;
+private:
   ThreadIdentifier  m_ThreadId;
-  bool              m_bInitialized;
-  int               m_iDllScriptCounter; // to keep track of the total scripts running that need the dll
-  HMODULE           m_hModule;
-  unsigned int      m_endtime;
 
   //Vector with list of threads used for running scripts
   PyList              m_vecPyList;
@@ -121,10 +105,6 @@ private:
 
   // any global events that scripts should be using
   CEvent m_globalEvent;
-
-  // in order to finalize and unload the python library, need to save all the extension libraries that are
-  // loaded by it and unload them first (not done by finalize)
-  PythonExtensionLibraries m_extensions;
 };
 
 extern XBPython g_pythonParser;

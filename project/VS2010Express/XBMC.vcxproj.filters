@@ -2354,7 +2354,7 @@
     </ClCompile>
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.cpp">
       <Filter>network\httprequesthandler</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\AFPFile.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
@@ -2630,6 +2630,9 @@
     </ClCompile>
     <ClCompile Include="..\..\xbmc\filesystem\MemBufferCache.cpp">
       <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\PythonInterpreter.cpp">
+      <Filter>interfaces\python</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -5300,6 +5303,9 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPJsonRpcHandler.h">
       <Filter>network\httprequesthandler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\interfaces\python\PythonInterpreter.h">
+      <Filter>interfaces\python</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
