@@ -78,6 +78,9 @@ class CHTTPJsonRpcHandler;
 #ifdef HAS_HTTPAPI
 class CHTTPApiHandler;
 #endif
+#ifdef HAS_PYTHON
+class CHTTPPythonHandler;
+#endif
 #ifdef HAS_WEB_INTERFACE
 class CHTTPWebinterfaceHandler;
 class CHTTPWebinterfaceAddonsHandler;
@@ -245,6 +248,9 @@ public:
 #endif
 #ifdef HAS_HTTPAPI
   CHTTPApiHandler& m_httpApiHandler;
+#endif
+#ifdef HAS_PYTHON
+  CHTTPPythonHandler& m_httpPythonHandler;
 #endif
 #ifdef HAS_WEB_INTERFACE
   CHTTPWebinterfaceHandler& m_httpWebinterfaceHandler;

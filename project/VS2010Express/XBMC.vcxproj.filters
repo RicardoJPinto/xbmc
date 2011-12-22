@@ -2649,6 +2649,9 @@
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.cpp">
       <Filter>interfaces\python\xbmcmodule</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPPythonHandler.cpp">
+      <Filter>network\httprequesthandler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\xbmc\win32\pch.h">
@@ -5330,6 +5333,9 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.h">
       <Filter>interfaces\python\xbmcmodule</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPPythonHandler.h">
+      <Filter>network\httprequesthandler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 SRCS=HTTPApiHandler.cpp \
      HTTPJsonRpcHandler.cpp \
+     HTTPPythonHandler.cpp \
      HTTPVfsHandler.cpp \
      HTTPWebinterfaceAddonsHandler.cpp \
      HTTPWebinterfaceHandler.cpp \

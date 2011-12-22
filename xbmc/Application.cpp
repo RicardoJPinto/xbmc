@@ -43,6 +43,9 @@
 #ifdef HAS_JSONRPC
 #include "network/httprequesthandler/HTTPJsonRpcHandler.h"
 #endif
+#ifdef HAS_PYTHON
+#include "network/httprequesthandler/HTTPPythonHandler.h"
+#endif
 #ifdef HAS_WEB_INTERFACE
 #include "network/httprequesthandler/HTTPWebinterfaceHandler.h"
 #include "network/httprequesthandler/HTTPWebinterfaceAddonsHandler.h"
@@ -353,6 +356,9 @@ CApplication::CApplication(void)
 #ifdef HAS_HTTPAPI
   , m_httpApiHandler(*new CHTTPApiHandler)
 #endif
+#ifdef HAS_PYTHON
+  , m_httpPythonHandler(*new CHTTPPythonHandler)
+#endif
 #ifdef HAS_WEB_INTERFACE
   , m_httpWebinterfaceHandler(*new CHTTPWebinterfaceHandler)
   , m_httpWebinterfaceAddonsHandler(*new CHTTPWebinterfaceAddonsHandler)
@@ -412,6 +418,9 @@ CApplication::~CApplication(void)
 #endif
 #ifdef HAS_JSONRPC
   delete &m_httpJsonRpcHandler;
+#endif
+#ifdef HAS_PYTHON
+  delete &m_httpPythonHandler;
 #endif
 #ifdef HAS_WEB_INTERFACE
   delete &m_httpWebinterfaceHandler;
@@ -1108,6 +1117,9 @@ bool CApplication::Initialize()
 #endif
 #ifdef HAS_HTTPAPI
   CWebServer::RegisterRequestHandler(&m_httpApiHandler);
+#endif
+#ifdef HAS_PYTHON
+  CWebServer::RegisterRequestHandler(&m_httpPythonHandler);
 #endif
 #ifdef HAS_WEB_INTERFACE
   CWebServer::RegisterRequestHandler(&m_httpWebinterfaceAddonsHandler);
@@ -3382,6 +3394,9 @@ void CApplication::Stop(int exitCode)
 #endif
 #ifdef HAS_HTTPAPI
   CWebServer::UnregisterRequestHandler(&m_httpApiHandler);
+#endif
+#ifdef HAS_PYTHON
+  CWebServer::UnregisterRequestHandler(&m_httpPythonHandler);
 #endif
 #ifdef HAS_WEB_INTERFACE
   CWebServer::UnregisterRequestHandler(&m_httpWebinterfaceAddonsHandler);
