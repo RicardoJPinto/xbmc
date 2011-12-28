@@ -44,19 +44,14 @@ CHTTPPythonInterpreter::CHTTPPythonInterpreter(struct MHD_Connection *connection
   if (connection == NULL)
     throw 1;
 
-  multimap<string, string> headerValues;
-  CWebServer::GetRequestHeaderValues(connection, MHD_HEADER_KIND, headerValues);
-  map<string, string> getValues;
-  CWebServer::GetRequestHeaderValues(connection, MHD_GET_ARGUMENT_KIND, getValues);
-
   m_pythonRequest = new HTTPPythonRequest();
   m_pythonRequest->connection = connection;
   m_pythonRequest->url = url;
   m_pythonRequest->file = URIUtils::GetFileName(url);
   m_pythonRequest->method = method;
   m_pythonRequest->version = version;
-  m_pythonRequest->headerValues = headerValues;
-  m_pythonRequest->getValues = getValues;
+  CWebServer::GetRequestHeaderValues(connection, MHD_HEADER_KIND, m_pythonRequest->headerValues);
+  CWebServer::GetRequestHeaderValues(connection, MHD_GET_ARGUMENT_KIND, m_pythonRequest->getValues);
   m_pythonRequest->postValues = postValues;
   m_pythonRequest->responseStatus = 200;
 }

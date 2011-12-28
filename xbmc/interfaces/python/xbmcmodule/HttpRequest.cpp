@@ -21,6 +21,7 @@
 
 #include "HttpRequest.h"
 #include "multidict.h"
+#include "Cookie.h"
 #include "pyutil.h"
 #include "network/WebServer.h"
 #include "utils/log.h"
@@ -121,7 +122,91 @@ namespace PYXBMC
     return Py_None;
   }
 
-  PyObject *HttpRequest_getMember(HttpRequest *self, void *name)
+  PyDoc_STRVAR(addcookie__doc__,
+    "add_cookie(cookie) -- Adds the cookie to the HTTP response."
+    "\n"
+    "cookie          : Cookie - cookie to add to the HTTP response.\n");
+
+  PyObject* HttpRequest_addCookie(HttpRequest *self, PyObject *args)
+  {
+    if (!self->request)
+    {
+      Py_INCREF(Py_False);
+      return Py_False;
+    }
+
+    Cookie *cookie = NULL;
+    if (!PyArg_ParseTuple(args, (char*)"O:Cookie", &cookie))
+    {
+      Py_INCREF(Py_False);
+      return Py_False;
+    }
+
+    if (!cookie || !Cookie_Check(cookie))
+    {
+      Py_INCREF(Py_False);
+      return Py_False;
+    }
+
+    self->request->responseHeaders.insert(std::pair<string, string>("Set-Cookie", PyString_AsString(Cookie_str(cookie))));
+
+    Py_INCREF(Py_True);
+    return Py_True;
+  }
+
+  PyDoc_STRVAR(getcookies__doc__,
+    "get_cookies() -- Gets a dictionary of all cookies from the HTTP request.\n");
+
+  PyObject* HttpRequest_getCookies(HttpRequest *self, PyObject *args)
+  {
+    if (!self->request)
+      return NULL;
+
+    string cookieData;
+    pair<multimap<string, string>::const_iterator, multimap<string, string>::const_iterator> range = self->request->headerValues.equal_range("Cookie");
+    for (multimap<string, string>::const_iterator it = range.first; it != range.second; it++)
+    {
+      cookieData.append(it->second);
+      cookieData.push_back(';'); // make sure two different cookies are seperated
+    }
+
+    if (cookieData.empty())
+      return PyDict_New();
+
+    return parseCookies(cookieData);
+  }
+
+  PyDoc_STRVAR(getcookie__doc__,
+    "get_cookie(name) -- Gets a specific cookie from the HTTP request."
+    "\n"
+    "name          : string or unicode - name of the cookie to retrieve.\n");
+
+  PyObject* HttpRequest_getCookie(HttpRequest *self, PyObject *args)
+  {
+    if (!self->request)
+      return NULL;
+
+    PyObject* nameObj = NULL;
+    if (!PyArg_ParseTuple(args, (char*)"O", &nameObj))
+      return NULL;
+
+    string name;
+    if (nameObj && !PyXBMCGetUnicodeString(name, nameObj, 1))
+      return NULL;
+
+    PyObject *cookies = HttpRequest_getCookies(self, NULL);
+    if (cookies && PyDict_Size(cookies) > 0)
+    {
+      PyObject *cookie = PyDict_GetItemString(cookies, name.c_str());
+      if (cookie != NULL)
+        return cookie;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* HttpRequest_getMember(HttpRequest *self, void *name)
   {
     if (!self->request)
       return NULL;
@@ -263,8 +348,11 @@ namespace PYXBMC
   }
 
   PyMethodDef HttpRequest_methods[] = {
-    {(char*)"log_error", (PyCFunction)HttpRequest_logError, METH_VARARGS, logerror__doc__},
-    {(char*)"write", (PyCFunction)HttpRequest_write, METH_VARARGS, write__doc__},
+    {(char*)"log_error",    (PyCFunction)HttpRequest_logError, METH_VARARGS, logerror__doc__},
+    {(char*)"write",        (PyCFunction)HttpRequest_write, METH_VARARGS, write__doc__},
+    {(char*)"add_cookie",   (PyCFunction)HttpRequest_addCookie, METH_VARARGS, addcookie__doc__},
+    {(char*)"get_cookie",   (PyCFunction)HttpRequest_getCookie, METH_VARARGS, getcookie__doc__},
+    {(char*)"get_cookies",  (PyCFunction)HttpRequest_getCookies, METH_VARARGS, getcookies__doc__},
     {NULL, NULL, 0, NULL}
   };
 
@@ -293,7 +381,6 @@ namespace PYXBMC
 // Restore code and data sections to normal.
 
   PyTypeObject HttpRequest_Type;
-
   void initHttpRequest_Type()
   {
     PyXBMCInitializeTypeObject(&HttpRequest_Type);

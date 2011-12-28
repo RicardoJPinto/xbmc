@@ -624,6 +624,7 @@
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\controltextbox.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\Cookie.cpp" />
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\dialog.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -893,6 +894,7 @@
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\GUIOperations.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\PythonInterpreter.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.h" />
+    <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\Cookie.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\multidict.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPApiHandler.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPJsonRpcHandler.h" />

@@ -23,6 +23,7 @@
 
 #include "HttpRequest.h"
 #include "multidict.h"
+#include "Cookie.h"
 
 #include "pyutil.h"
 #include "pythreadstate.h"
@@ -61,10 +62,12 @@ extern "C" {
       initHttpRequest_Type();
       initmultidict_Type();
       initmultidictiter_Type();
+      initCookie_Type();
 
       if (PyType_Ready(&HttpRequest_Type) < 0 ||
           PyType_Ready(&multidict_Type) < 0 ||
-          PyType_Ready(&multidictiter_Type) < 0)
+          PyType_Ready(&multidictiter_Type) < 0 ||
+          PyType_Ready(&Cookie_Type) < 0)
         return;
     }
 
@@ -81,6 +84,7 @@ extern "C" {
       Py_INCREF(&HttpRequest_Type);
       Py_INCREF(&multidict_Type);
       Py_INCREF(&multidictiter_Type);
+      Py_INCREF(&Cookie_Type);
 
       // init general xbmc modules
       PyObject* pXbmcHttpModule;
@@ -91,6 +95,7 @@ extern "C" {
       PyModule_AddObject(pXbmcHttpModule, (char*)"HttpRequest", (PyObject*)&HttpRequest_Type);
       PyModule_AddObject(pXbmcHttpModule, (char*)"multidict", (PyObject*)&multidict_Type);
       PyModule_AddObject(pXbmcHttpModule, (char*)"multidictiter", (PyObject*)&multidictiter_Type);
+      PyModule_AddObject(pXbmcHttpModule, (char*)"Cookie", (PyObject*)&Cookie_Type);
 
       // Add HTTP method constants
       PyModule_AddStringConstant(pXbmcHttpModule, (char*)"GET", (char*)"GET");

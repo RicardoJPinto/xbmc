@@ -13,6 +13,7 @@ SRCS=action.cpp \
      controlslider.cpp \
      controlspin.cpp \
      controltextbox.cpp \
+     Cookie.cpp \
      dialog.cpp \
      GUIPythonWindow.cpp \
      GUIPythonWindowDialog.cpp \
