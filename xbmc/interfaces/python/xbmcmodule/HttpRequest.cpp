@@ -22,8 +22,10 @@
 #include "HttpRequest.h"
 #include "multidict.h"
 #include "Cookie.h"
+#include "Session.h"
 #include "pyutil.h"
 #include "network/WebServer.h"
+#include "network/httprequesthandler/python/HTTPSessionManager.h"
 #include "utils/log.h"
 
 using namespace std;
@@ -54,7 +56,6 @@ namespace PYXBMC
       return (PyObject*)request;
 
     Py_DECREF(request);
-
     return NULL;
   }
 
@@ -206,6 +207,24 @@ namespace PYXBMC
     return Py_None;
   }
 
+  PyDoc_STRVAR(getsession__doc__,
+    "get_session() -- Gets the session belonging to this HTTP request.\n");
+
+  PyObject* HttpRequest_getSession(HttpRequest *self, PyObject *args)
+  {
+    if (!self->request)
+      return NULL;
+
+    Session *sessionObj = CHTTPSessionManager::Get().GetSession(self->request);
+    if (sessionObj)
+    {
+      Py_INCREF(sessionObj);
+      return (PyObject*)sessionObj;
+    }
+
+    return NULL;
+  }
+
   PyObject* HttpRequest_getMember(HttpRequest *self, void *name)
   {
     if (!self->request)
@@ -353,6 +372,7 @@ namespace PYXBMC
     {(char*)"add_cookie",   (PyCFunction)HttpRequest_addCookie, METH_VARARGS, addcookie__doc__},
     {(char*)"get_cookie",   (PyCFunction)HttpRequest_getCookie, METH_VARARGS, getcookie__doc__},
     {(char*)"get_cookies",  (PyCFunction)HttpRequest_getCookies, METH_VARARGS, getcookies__doc__},
+    {(char*)"get_session",  (PyCFunction)HttpRequest_getSession, METH_VARARGS, getsession__doc__},
     {NULL, NULL, 0, NULL}
   };
 

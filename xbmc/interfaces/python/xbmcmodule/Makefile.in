@@ -31,6 +31,7 @@ SRCS=action.cpp \
      PythonAddon.cpp \
      PythonPlayer.cpp \
      pyutil.cpp \
+     Session.cpp \
      window.cpp \
      winxml.cpp \
      winxmldialog.cpp \

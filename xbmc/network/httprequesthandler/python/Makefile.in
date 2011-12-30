@@ -1,4 +1,5 @@
 SRCS=HTTPPythonInterpreter.cpp \
+     HTTPSessionManager.cpp \
 
 LIB=pythonrequesthandler.a
 

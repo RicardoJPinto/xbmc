@@ -670,6 +670,7 @@
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\pyutil.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\Session.cpp" />
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\window.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -779,6 +780,7 @@
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPWebinterfaceHandler.cpp" />
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.cpp" />
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInterpreter.cpp" />
+    <ClCompile Include="..\..\xbmc\network\httprequesthandler\python\HTTPSessionManager.cpp" />
     <ClCompile Include="..\..\xbmc\network\libscrobbler\lastfmscrobbler.cpp" />
     <ClCompile Include="..\..\xbmc\network\libscrobbler\librefmscrobbler.cpp" />
     <ClCompile Include="..\..\xbmc\network\libscrobbler\scrobbler.cpp" />
@@ -896,6 +898,7 @@
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\Cookie.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\multidict.h" />
+    <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\Session.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPApiHandler.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPJsonRpcHandler.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPPythonHandler.h" />
@@ -1005,6 +1008,7 @@
     <ClInclude Include="..\..\xbmc\filesystem\ZipFile.h" />
     <ClInclude Include="..\..\xbmc\filesystem\ZipManager.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInterpreter.h" />
+    <ClInclude Include="..\..\xbmc\network\httprequesthandler\python\HTTPSessionManager.h" />
     <ClInclude Include="..\..\xbmc\threads\platform\win\Implementation.cpp" />
     <ClCompile Include="..\..\xbmc\threads\SystemClock.cpp" />
     <ClCompile Include="..\..\xbmc\threads\Thread.cpp" />

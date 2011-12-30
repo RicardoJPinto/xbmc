@@ -46,6 +46,7 @@ CHTTPPythonInterpreter::CHTTPPythonInterpreter(struct MHD_Connection *connection
 
   m_pythonRequest = new HTTPPythonRequest();
   m_pythonRequest->connection = connection;
+  m_pythonRequest->addon = addon;
   m_pythonRequest->url = url;
   m_pythonRequest->file = URIUtils::GetFileName(url);
   m_pythonRequest->method = method;

@@ -29,6 +29,7 @@
 typedef struct HTTPPythonRequest
 {
   struct MHD_Connection *connection;
+  ADDON::AddonPtr addon;
   std::string url;
   std::string file;
   HTTPMethod method;
