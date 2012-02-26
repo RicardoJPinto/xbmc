@@ -18,10 +18,12 @@ SRCS=action.cpp \
      GUIPythonWindowDialog.cpp \
      GUIPythonWindowXML.cpp \
      GUIPythonWindowXMLDialog.cpp \
+     HttpRequest.cpp \
      infotagmusic.cpp \
      infotagvideo.cpp \
      keyboard.cpp \
      listitem.cpp \
+     multidict.cpp \
      player.cpp \
      pyplaylist.cpp \
      pyrendercapture.cpp \
@@ -33,6 +35,7 @@ SRCS=action.cpp \
      winxmldialog.cpp \
      xbmcaddonmodule.cpp \
      xbmcguimodule.cpp \
+     xbmchttpmodule.cpp \
      xbmcmodule.cpp \
      xbmcplugin.cpp \
      xbmcvfsmodule.cpp \

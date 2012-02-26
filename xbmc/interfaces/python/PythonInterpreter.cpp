@@ -241,6 +241,7 @@ bool CPythonInterpreter::Initialize()
       InitGUITypes();
       InitPluginTypes();
       InitAddonTypes();
+      InitHttpTypes();
 
       if (!(s_mainThreadState = PyThreadState_Get()))
         CLog::Log(LOGERROR, "PythonInterpreter: threadstate is NULL");

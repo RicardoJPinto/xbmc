@@ -639,6 +639,7 @@
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\GUIPythonWindowXMLDialog.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.cpp" />
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\infotagmusic.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -651,6 +652,7 @@
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\listitem.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\multidict.cpp" />
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\player.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -682,6 +684,7 @@
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\xbmcguimodule.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\xbmchttpmodule.cpp" />
     <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\xbmcmodule.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">..\..\project\BuildDependencies\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -773,6 +776,7 @@
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPWebinterfaceAddonsHandler.cpp" />
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPWebinterfaceHandler.cpp" />
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.cpp" />
+    <ClCompile Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInterpreter.cpp" />
     <ClCompile Include="..\..\xbmc\network\libscrobbler\lastfmscrobbler.cpp" />
     <ClCompile Include="..\..\xbmc\network\libscrobbler\librefmscrobbler.cpp" />
     <ClCompile Include="..\..\xbmc\network\libscrobbler\scrobbler.cpp" />
@@ -887,6 +891,8 @@
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\JSONRPCUtils.h" />
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\GUIOperations.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\PythonInterpreter.h" />
+    <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.h" />
+    <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\multidict.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPApiHandler.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPJsonRpcHandler.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\HTTPVfsHandler.h" />
@@ -994,6 +1000,7 @@
     <ClInclude Include="..\..\xbmc\filesystem\ZipDirectory.h" />
     <ClInclude Include="..\..\xbmc\filesystem\ZipFile.h" />
     <ClInclude Include="..\..\xbmc\filesystem\ZipManager.h" />
+    <ClInclude Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInterpreter.h" />
     <ClInclude Include="..\..\xbmc\threads\platform\win\Implementation.cpp" />
     <ClCompile Include="..\..\xbmc\threads\SystemClock.cpp" />
     <ClCompile Include="..\..\xbmc\threads\Thread.cpp" />

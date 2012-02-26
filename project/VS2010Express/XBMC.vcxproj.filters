@@ -259,6 +259,9 @@
     <Filter Include="network\httprequesthandler">
       <UniqueIdentifier>{9029e610-aa5a-4414-9e96-1d69f03b3bd8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="network\httprequesthandler\python">
+      <UniqueIdentifier>{75b55a55-6e48-466d-8dcf-47eb1141bf6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\xbmc\win32\pch.cpp">
@@ -2633,6 +2636,18 @@
     </ClCompile>
     <ClCompile Include="..\..\xbmc\interfaces\python\PythonInterpreter.cpp">
       <Filter>interfaces\python</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\multidict.cpp">
+      <Filter>interfaces\python\xbmcmodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\xbmchttpmodule.cpp">
+      <Filter>interfaces\python\xbmcmodule</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInterpreter.cpp">
+      <Filter>network\httprequesthandler\python</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.cpp">
+      <Filter>interfaces\python\xbmcmodule</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -5306,6 +5321,15 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\interfaces\python\PythonInterpreter.h">
       <Filter>interfaces\python</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\multidict.h">
+      <Filter>interfaces\python\xbmcmodule</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonInterpreter.h">
+      <Filter>network\httprequesthandler\python</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\interfaces\python\xbmcmodule\HttpRequest.h">
+      <Filter>interfaces\python\xbmcmodule</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
