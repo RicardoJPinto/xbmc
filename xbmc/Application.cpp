@@ -642,7 +642,7 @@ bool CApplication::Create()
     return false;
   }
 
-  CLog::SetLogLevel(LOGERROR);
+  CLog::SetLogLevel(LOG_LEVEL_NORMAL);
 
   const int count = 10000;
 
