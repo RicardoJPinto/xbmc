@@ -67,10 +67,10 @@ void CLog::Log(int loglevel, const char *format, ... )
   CSingleLock waitLock(critSec);
   int extras = (loglevel >> LOGMASKBIT) << LOGMASKBIT;
   loglevel = loglevel & LOGMASK;
-#if !(defined(_DEBUG) || defined(PROFILE))
+//#if !(defined(_DEBUG) || defined(PROFILE))
   if (m_logLevel > LOG_LEVEL_NORMAL ||
      (m_logLevel > LOG_LEVEL_NONE && loglevel >= LOGNOTICE))
-#endif
+//#endif
   {
     if (!m_file)
       return;
@@ -89,6 +89,7 @@ void CLog::Log(int loglevel, const char *format, ... )
     strData.FormatV(format,va);
     va_end(va);
 
+    /*
     if (m_repeatLogLevel == loglevel && m_repeatLine == strData)
     {
       m_repeatCount++;
@@ -108,6 +109,7 @@ void CLog::Log(int loglevel, const char *format, ... )
     
     m_repeatLine      = strData;
     m_repeatLogLevel  = loglevel;
+    */
 
     unsigned int length = 0;
     while ( length != strData.length() )
@@ -121,7 +123,7 @@ void CLog::Log(int loglevel, const char *format, ... )
     if (!length)
       return;
     
-    OutputDebugString(strData);
+    //OutputDebugString(strData);
 
     /* fixup newline alignment, number of spaces should equal prefix length */
     strData.Replace("\n", LINE_ENDING"                                            ");

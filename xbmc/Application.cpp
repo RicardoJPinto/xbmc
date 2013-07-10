@@ -346,6 +346,12 @@
 #include "utils/Environment.h"
 #endif
 
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/rollingfileappender.h>
+#include <log4cxx/patternlayout.h>
+#include <log4cxx/level.h>
+
 using namespace std;
 using namespace ADDON;
 using namespace XFILE;
@@ -635,6 +641,78 @@ bool CApplication::Create()
       CSpecialProtocol::TranslatePath(g_advancedSettings.m_logFolder).c_str());
     return false;
   }
+
+  CLog::SetLogLevel(LOGERROR);
+
+  const int count = 10000;
+
+  unsigned int start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    CLog::Log(LOGERROR, "simple");
+  CLog::Log(LOGFATAL, "Simple (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    CLog::Log(LOGERROR, "advanced %d", i);
+  CLog::Log(LOGFATAL, "Advanced (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    CLog::Log(LOGERROR, "expert %d %u", i, XbmcThreads::SystemClockMillis() - start);
+  CLog::Log(LOGFATAL, "Expert (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    CLog::Log(LOGDEBUG, "simple hidden");
+  CLog::Log(LOGFATAL, "Simple hidden (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    CLog::Log(LOGDEBUG, "advanced hidden %d", i);
+  CLog::Log(LOGFATAL, "Advanced hidden (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    CLog::Log(LOGDEBUG, "expert hidden %d %u", i, XbmcThreads::SystemClockMillis() - start);
+  CLog::Log(LOGFATAL, "Expert hidden (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  // TODO: LOG4CXX
+  log4cxx::LayoutPtr layout = log4cxx::LayoutPtr(new log4cxx::PatternLayout(LOG4CXX_STR("%d{HH:mm:ss} T:%t %7p: %m%n")));
+  log4cxx::AppenderPtr fileAppender = log4cxx::RollingFileAppenderPtr(new log4cxx::RollingFileAppender(layout, LOG4CXX_STR("log4cxx.log")));
+  log4cxx::BasicConfigurator::configure(fileAppender);
+
+  log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("XBMC"));
+  logger->setLevel(log4cxx::Level::getError());
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    LOG4CXX_ERROR(logger, "simple");
+  CLog::Log(LOGFATAL, "Simple (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    LOG4CXX_ERROR(logger, "advanced " << i);
+  CLog::Log(LOGFATAL, "Advanced (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    LOG4CXX_ERROR(logger, "expert " << i << " " << (XbmcThreads::SystemClockMillis() - start));
+  CLog::Log(LOGFATAL, "Expert (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    LOG4CXX_DEBUG(logger, "simple hidden");
+  CLog::Log(LOGFATAL, "Simple hidden (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    LOG4CXX_DEBUG(logger, "advanced hidden " << i);
+  CLog::Log(LOGFATAL, "Advanced hidden (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
+
+  start = XbmcThreads::SystemClockMillis();
+  for (int i = 0; i < count; i++)
+    LOG4CXX_DEBUG(logger, "expert hidden " << i << " " << (XbmcThreads::SystemClockMillis() - start));
+  CLog::Log(LOGFATAL, "Expert hidden (%d): %09u", count, XbmcThreads::SystemClockMillis() - start);
 
   // Init our DllLoaders emu env
   init_emu_environ();
