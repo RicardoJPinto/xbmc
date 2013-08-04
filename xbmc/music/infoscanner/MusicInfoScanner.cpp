@@ -855,6 +855,8 @@ int CMusicInfoScanner::RetrieveMusicInfo(const CStdString& strDirectory, CFileIt
             URIUtils::GetParentPath(album->strPath, downloadedArtist.strPath);
             map<string, string> artwork = GetArtistArtwork(downloadedArtist);
             m_musicDatabase.SetArtForItem(downloadedArtist.idArtist, "artist", artwork);
+            if (artistCredit->GetMusicBrainzArtistID().empty() && !downloadedArtist.strMusicBrainzArtistID.empty())
+              artistCredit->SetMusicBrainzArtistID(downloadedArtist.strMusicBrainzArtistID);
             m_artistCache.insert(make_pair(*artistCredit, downloadedArtist));
           }
           else if (artistDownloadStatus == INFO_CANCELLED)
