@@ -16210,7 +16210,21 @@ msgctxt "#37044"
 msgid "%s and %s"
 msgstr ""
 
-#empty strings from id 37045 to 38009
+#empty string with id 37045
+
+#. Removing import of (media type plural) from (media provider name)
+#: xbmc/media/import/repositories/VideoImportRepository.cpp
+msgctxt "#37046"
+msgid "Removing import of %s from %s..."
+msgstr ""
+
+#. Removing (media provider name)
+#: xbmc/media/import/repositories/VideoImportRepository.cpp
+msgctxt "#37047"
+msgid "Removing %s..."
+msgstr ""
+
+#empty strings from id 37048 to 38009
 
 #: system/settings/rbp.xml
 msgctxt "#38010"
