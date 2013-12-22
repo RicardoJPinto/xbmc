@@ -1573,6 +1573,11 @@ CFileItemList::CFileItemList(const std::string& strPath) : CFileItem(strPath, tr
   m_replaceListing = false;
 }
 
+CFileItemList::CFileItemList(const CFileItemList &other)
+{
+  Copy(other, true);
+}
+
 CFileItemList::~CFileItemList()
 {
   Clear();
