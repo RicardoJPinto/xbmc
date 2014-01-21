@@ -2470,7 +2470,12 @@ msgctxt "#577"
 msgid "Date Taken"
 msgstr ""
 
-#empty strings from id 578 to 579
+#: xbmc/media/import/windows/GUIViewStateMediaSourceBrowser.cpp
+msgctxt "#578"
+msgid "Last synced"
+msgstr ""
+
+#empty string with id 579
 
 msgctxt "#580"
 msgid "Sort direction"
@@ -16248,7 +16253,59 @@ msgctxt "#37047"
 msgid "Removing %s..."
 msgstr ""
 
-#empty strings from id 37048 to 38009
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37048"
+msgid "Media provider information"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37049"
+msgid "Media import information"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37050"
+msgid "Synchronisation"
+msgstr ""
+
+#strings from 37051 to 37059 are reserved for media import setting categories
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37060"
+msgid "Update imported media items"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37061"
+msgid "Update playback-related metadata"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37062"
+msgid "Update metadata on the media provider"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37063"
+msgid "Update playback-related metadata on the media provider"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37064"
+msgid "Start synchronisation"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37065"
+msgid "Automatically"
+msgstr ""
+
+#: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
+msgctxt "#37066"
+msgid "Manually"
+msgstr ""
+
+#empty strings from id 37067 to 38009
 
 #: system/settings/rbp.xml
 msgctxt "#38010"
