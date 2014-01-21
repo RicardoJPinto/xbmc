@@ -16082,7 +16082,65 @@ msgctxt "#37031"
 msgid "Specifies how Blu-rays should be opened/played back. Disc menus are not fully supported yet and may cause problems."
 msgstr ""
 
-#empty strings from id 37032 to 38009
+#empty strings from id 37032 to 37034
+
+#. Retrieving media items from (media provider name)
+#: xbmc/media/import/task/MediaImportRetrievalTask.cpp
+msgctxt "#37035"
+msgid "Retrieving media items from %s..."
+msgstr ""
+
+#. Synchronising media items from (media provider name)
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#37036"
+msgid "Synchronising media items from %s..."
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#37037"
+msgid "New media provider detected"
+msgstr ""
+
+#. No importer found for (media provider name)
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#37038"
+msgid "No importer found for %s..."
+msgstr ""
+
+#. Would you like to import media items from (media provider name)?
+#: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
+msgctxt "#37039"
+msgid "Would you like to import media items from %s?"
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#37040"
+msgid "Ignore"
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#37041"
+msgid "Import"
+msgstr ""
+
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#37042"
+msgid "Media types available for import:"
+msgstr ""
+
+#. (media type plural), (media type plural) (in combination with #37044)
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#37043"
+msgid "%s, %s"
+msgstr ""
+
+#. (media type plural) and (media type plural) (in combination with #37043)
+#: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
+msgctxt "#37044"
+msgid "%s and %s"
+msgstr ""
+
+#empty strings from id 37045 to 38009
 
 #: system/settings/rbp.xml
 msgctxt "#38010"
