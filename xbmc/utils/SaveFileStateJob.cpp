@@ -34,6 +34,7 @@
 #include "guilib/GUIMessage.h"
 #include "guilib/GUIWindowManager.h"
 #include "GUIUserMessages.h"
+#include "media/import/MediaImportManager.h"
 #include "music/MusicDatabase.h"
 
 bool CSaveFileStateJob::DoWork()
@@ -54,7 +55,8 @@ bool CSaveFileStateJob::DoWork()
   {
 #ifdef HAS_UPNP
     // checks if UPnP server of this file is available and supports updating
-    if (URIUtils::IsUPnP(progressTrackingFile)
+    if (!m_item.IsImported() &&
+        URIUtils::IsUPnP(progressTrackingFile)
         && UPNP::CUPnP::SaveFileState(m_item, m_bookmark, m_updatePlayCount)) {
       return true;
     }
@@ -91,7 +93,10 @@ bool CSaveFileStateJob::DoWork()
             updateListing = true;
           }
           else
+          {
+            m_item.GetVideoInfoTag()->m_lastPlayed = CDateTime::GetCurrentDateTime();
             videodatabase.UpdateLastPlayed(m_item);
+          }
 
           if (!m_item.HasVideoInfoTag() || m_item.GetVideoInfoTag()->m_resumePoint.timeInSeconds != m_bookmark.timeInSeconds)
           {
@@ -190,6 +195,9 @@ bool CSaveFileStateJob::DoWork()
         }
       }
     }
+
+    if (m_item.IsImported())
+      CMediaImportManager::Get().UpdateImportedItem(m_item);
   }
   return true;
 }
