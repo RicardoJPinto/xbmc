@@ -49,6 +49,11 @@
 #include "media/import/handler/SeasonImportHandler.h"
 #include "media/import/handler/TvShowImportHandler.h"
 
+// TODO
+#include "media/import/handler/AlbumImportHandler.h"
+#include "media/import/handler/ArtistImportHandler.h"
+#include "media/import/handler/SongImportHandler.h"
+
 CMediaImportManager::CMediaImportManager()
   : CJobQueue(false, 1, CJob::PRIORITY_LOW_PAUSABLE)
 {
@@ -58,6 +63,11 @@ CMediaImportManager::CMediaImportManager()
   RegisterMediaImportHandler(new CSeasonImportHandler());
   RegisterMediaImportHandler(new CEpisodeImportHandler());
   RegisterMediaImportHandler(new CMusicVideoImportHandler());
+
+  // TODO
+  RegisterMediaImportHandler(new CArtistImportHandler());
+  RegisterMediaImportHandler(new CAlbumImportHandler());
+  RegisterMediaImportHandler(new CSongImportHandler());
 }
 
 CMediaImportManager::~CMediaImportManager()
