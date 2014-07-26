@@ -1,8 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XBMC", "XBMC.vcxproj", "{3A68081D-E8F9-4523-9436-530DE9E5530A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kodi", "XBMC.vcxproj", "{3A68081D-E8F9-4523-9436-530DE9E5530A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7} = {C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}
 	EndProjectSection
@@ -41,13 +41,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageLib_zlib", "..\..\lib\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libexif_dll", "..\..\lib\libexif\libexif.vcxproj", "{AD20A3E2-09CB-42DB-9A70-27F7CDC886CE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "visDirectxSpectrum", "..\..\xbmc\visualizations\DirectXSpectrum\directx_spectrum.vcxproj", "{0D91724A-E6F6-4708-AF47-9F88BBE2114C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmodplug_2010", "..\..\lib\libmodplug\libmodplug_2010.vcxproj", "{C15B374E-7126-48FF-B618-A375D7B17FCF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libRTV", "..\..\lib\libRTV\libRTV.vcxproj", "{DD4818AE-7E35-40B7-A6A0-0FF83AA1C916}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "visWaveform", "..\..\xbmc\visualizations\WaveForm\Waveform.vcxproj", "{D450FE9A-CE56-4496-B4AB-379094E642F2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "squish", "..\..\tools\depends\native\libsquish-native\src\vs7\squish\squish_2010.vcxproj", "{6A8518C3-D81A-4428-BD7F-C37933088AC1}"
 EndProject
@@ -79,11 +75,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "..\..\lib\gtest\msvc\gtest.vcxproj", "{C8F6C172-56F2-4E76-B5FA-C3B423B31BE7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libXBMC_codec", "..\..\lib\addons\library.xbmc.codec\project\VS2010Express\libXBMC_codec.vcxproj", "{F8F1290B-1188-4810-86C9-88178A31D2AF}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "visVortex", "..\..\xbmc\visualizations\Vortex\Vortex\Vortex.vcxproj", "{AFF288D5-8A77-4817-8DD9-364E183CDBF8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{034B1D02-CA92-455D-8866-DB95BEE49C10} = {034B1D02-CA92-455D-8866-DB95BEE49C10}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -200,12 +191,6 @@ Global
 		{AD20A3E2-09CB-42DB-9A70-27F7CDC886CE}.Debug|Win32.Build.0 = Debug (DLL)|Win32
 		{AD20A3E2-09CB-42DB-9A70-27F7CDC886CE}.Release|Win32.ActiveCfg = Release (DLL)|Win32
 		{AD20A3E2-09CB-42DB-9A70-27F7CDC886CE}.Release|Win32.Build.0 = Release (DLL)|Win32
-		{0D91724A-E6F6-4708-AF47-9F88BBE2114C}.Debug Testsuite|Win32.ActiveCfg = Debug|Win32
-		{0D91724A-E6F6-4708-AF47-9F88BBE2114C}.Debug Testsuite|Win32.Build.0 = Debug|Win32
-		{0D91724A-E6F6-4708-AF47-9F88BBE2114C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0D91724A-E6F6-4708-AF47-9F88BBE2114C}.Debug|Win32.Build.0 = Debug|Win32
-		{0D91724A-E6F6-4708-AF47-9F88BBE2114C}.Release|Win32.ActiveCfg = Release|Win32
-		{0D91724A-E6F6-4708-AF47-9F88BBE2114C}.Release|Win32.Build.0 = Release|Win32
 		{C15B374E-7126-48FF-B618-A375D7B17FCF}.Debug Testsuite|Win32.ActiveCfg = Debug|Win32
 		{C15B374E-7126-48FF-B618-A375D7B17FCF}.Debug Testsuite|Win32.Build.0 = Debug|Win32
 		{C15B374E-7126-48FF-B618-A375D7B17FCF}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -218,12 +203,6 @@ Global
 		{DD4818AE-7E35-40B7-A6A0-0FF83AA1C916}.Debug|Win32.Build.0 = Debug|Win32
 		{DD4818AE-7E35-40B7-A6A0-0FF83AA1C916}.Release|Win32.ActiveCfg = Release|Win32
 		{DD4818AE-7E35-40B7-A6A0-0FF83AA1C916}.Release|Win32.Build.0 = Release|Win32
-		{D450FE9A-CE56-4496-B4AB-379094E642F2}.Debug Testsuite|Win32.ActiveCfg = Debug|Win32
-		{D450FE9A-CE56-4496-B4AB-379094E642F2}.Debug Testsuite|Win32.Build.0 = Debug|Win32
-		{D450FE9A-CE56-4496-B4AB-379094E642F2}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D450FE9A-CE56-4496-B4AB-379094E642F2}.Debug|Win32.Build.0 = Debug|Win32
-		{D450FE9A-CE56-4496-B4AB-379094E642F2}.Release|Win32.ActiveCfg = Release|Win32
-		{D450FE9A-CE56-4496-B4AB-379094E642F2}.Release|Win32.Build.0 = Release|Win32
 		{6A8518C3-D81A-4428-BD7F-C37933088AC1}.Debug Testsuite|Win32.ActiveCfg = Debug|Win32
 		{6A8518C3-D81A-4428-BD7F-C37933088AC1}.Debug Testsuite|Win32.Build.0 = Debug|Win32
 		{6A8518C3-D81A-4428-BD7F-C37933088AC1}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -303,12 +282,6 @@ Global
 		{F8F1290B-1188-4810-86C9-88178A31D2AF}.Debug|Win32.Build.0 = Debug|Win32
 		{F8F1290B-1188-4810-86C9-88178A31D2AF}.Release|Win32.ActiveCfg = Release|Win32
 		{F8F1290B-1188-4810-86C9-88178A31D2AF}.Release|Win32.Build.0 = Release|Win32
-		{AFF288D5-8A77-4817-8DD9-364E183CDBF8}.Debug Testsuite|Win32.ActiveCfg = Debug|Win32
-		{AFF288D5-8A77-4817-8DD9-364E183CDBF8}.Debug Testsuite|Win32.Build.0 = Debug|Win32
-		{AFF288D5-8A77-4817-8DD9-364E183CDBF8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AFF288D5-8A77-4817-8DD9-364E183CDBF8}.Debug|Win32.Build.0 = Debug|Win32
-		{AFF288D5-8A77-4817-8DD9-364E183CDBF8}.Release|Win32.ActiveCfg = Release|Win32
-		{AFF288D5-8A77-4817-8DD9-364E183CDBF8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
