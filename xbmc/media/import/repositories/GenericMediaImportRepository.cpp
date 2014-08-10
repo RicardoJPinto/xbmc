@@ -426,6 +426,17 @@ bool CGenericMediaImportRepository::RemoveSource(const std::string &identifier, 
   return true;
 }
 
+void CGenericMediaImportRepository::Clean()
+{
+  if (!m_loaded ||
+    !openRepository())
+    return;
+
+
+
+  closeRepository();
+}
+
 CGenericMediaImportRepository::MediaImportIdentifier CGenericMediaImportRepository::GetMediaImportIdentifier(const CMediaImport &import)
 {
   return MediaImportIdentifier(import.GetPath(), import.GetMediaType());

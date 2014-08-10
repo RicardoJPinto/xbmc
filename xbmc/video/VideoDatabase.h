@@ -764,6 +764,11 @@ public:
    */
   void SetImportItemsEnabled(bool enabled, const CMediaImport& import);
 
+  /*! \brief Cleans up any left-over items in the database belonging to
+      sources and imports that have been removed.
+   */
+  void CleanImports(bool standalone = true);
+
   /*! \brief Updates the dateAdded field in the files table for the file
    with the given idFile and the given path based on the files modification date
    \param idFile id of the file in the files table

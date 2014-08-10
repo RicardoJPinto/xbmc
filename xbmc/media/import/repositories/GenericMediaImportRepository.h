@@ -53,6 +53,8 @@ public:
   virtual bool UpdateSource(const CMediaImportSource &source);
   virtual bool RemoveSource(const std::string &identifier, CGUIDialogProgress *progress = NULL);
 
+  virtual void Clean();
+
 protected:
   virtual std::set<MediaType> getSupportedMediaTypes() const = 0;
 
@@ -68,6 +70,8 @@ protected:
   virtual bool updateImport(const CMediaImport &import) = 0;
   virtual void removeImport(const CMediaImport &import, CGUIDialogProgress *progress = NULL) = 0;
   virtual void updateLastSync(const CMediaImport &import, const CDateTime &lastSync) = 0;
+
+  virtual void clean() = 0;
 
   typedef std::pair<std::string, MediaType> MediaImportIdentifier;
   static MediaImportIdentifier GetMediaImportIdentifier(const CMediaImport &import);

@@ -49,5 +49,7 @@ protected:
   virtual void removeImport(const CMediaImport &import, CGUIDialogProgress *progress = NULL);
   virtual void updateLastSync(const CMediaImport &import, const CDateTime &lastSync);
 
+  virtual void clean();
+
   CVideoDatabase m_db;
 };

@@ -92,3 +92,8 @@ void CVideoImportRepository::updateLastSync(const CMediaImport &import, const CD
 {
   m_db.UpdateImportLastSynced(import, lastSync);
 }
+
+void CVideoImportRepository::clean()
+{
+  // TODO
+}

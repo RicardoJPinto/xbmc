@@ -990,6 +990,8 @@ void CVideoDatabase::RemoveSource(const std::string& sourceIdentifier, CGUIDialo
       strSQL = PrepareSQL("DELETE FROM sources WHERE idSource = %d", idSource);
       m_pDS->exec(strSQL);
 
+      CleanImports(false);
+
       if (progress != NULL)
       {
         progress->SetPercentage(100);
@@ -1479,6 +1481,9 @@ bool CVideoDatabase::RemoveImport(const CMediaImport &import, CGUIDialogProgress
     strSQL = PrepareSQL("DELETE FROM imports WHERE idImport = %d", idImport);
     m_pDS->exec(strSQL);
 
+    if (standalone)
+      CleanImports(false);
+
     if (progress != NULL)
     {
       progress->SetPercentage(100);
@@ -1579,6 +1584,36 @@ void CVideoDatabase::SetImportItemsEnabled(bool enabled, const CMediaImport &imp
   catch (...)
   {
     CLog::Log(LOGERROR, "%s (%s) failed", __FUNCTION__, sql.c_str());
+  }
+}
+
+void CVideoDatabase::CleanImports(bool standalone /* = true */)
+{
+  std::string sql;
+  try
+  {
+    if (m_pDB.get() == NULL || m_pDS.get() == NULL)
+      return;
+
+    if (standalone)
+      BeginTransaction();
+
+    // TODO
+
+    if (standalone)
+    {
+      CommitTransaction();
+
+      Compress(false);
+      CUtil::DeleteVideoDatabaseDirectoryCache();
+    }
+  }
+  catch (...)
+  {
+    CLog::Log(LOGERROR, "%s unable to CleanImports (%s)", __FUNCTION__, sql.c_str());
+
+    if (standalone)
+      RollbackTransaction();
   }
 }
 
