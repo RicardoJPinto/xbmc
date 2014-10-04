@@ -16111,201 +16111,215 @@ msgctxt "#37031"
 msgid "Specifies how Blu-rays should be opened/played back. Disc menus are not fully supported yet and may cause problems."
 msgstr ""
 
-#empty strings from id 37032 to 37034
-
 #. Importing (media type plural) from (media provider name)
+#: xbmc/media/import/handler/AlbumImportHandler.cpp
+#: xbmc/media/import/handler/ArtistImportHandler.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/MovieImportHandler.cpp
 #: xbmc/media/import/handler/MusicVideoImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
+#: xbmc/media/import/handler/SongImportHandler.cpp
 #: xbmc/media/import/handler/TvShowImportHandler.cpp
-msgctxt "#37026"
+msgctxt "#37032"
 msgid "Importing %s from %s..."
 msgstr ""
 
 #. Checking (media item title)
+#: xbmc/media/import/handler/ArtistImportHandler.cpp
 #: xbmc/media/import/handler/MovieImportHandler.cpp
 #: xbmc/media/import/handler/MusicVideoImportHandler.cpp
 #: xbmc/media/import/handler/TvShowImportHandler.cpp
-msgctxt "#37027"
+msgctxt "#37033"
 msgid "Checking %s..."
 msgstr ""
 
 #. Removing (media item title)
+#: xbmc/media/import/handler/ArtistImportHandler.cpp
 #: xbmc/media/import/handler/MovieImportHandler.cpp
 #: xbmc/media/import/handler/MusicVideoImportHandler.cpp
 #: xbmc/media/import/handler/TvShowImportHandler.cpp
-msgctxt "#37028"
+msgctxt "#37034"
 msgid "Removing %s..."
 msgstr ""
 
 #. Updating (media item title)
+#: xbmc/media/import/handler/ArtistImportHandler.cpp
 #: xbmc/media/import/handler/MovieImportHandler.cpp
 #: xbmc/media/import/handler/MusicVideoImportHandler.cpp
 #: xbmc/media/import/handler/TvShowImportHandler.cpp
-msgctxt "#37029"
+msgctxt "#37035"
 msgid "Updating %s..."
 msgstr ""
 
 #. Adding (media item title)
+#: xbmc/media/import/handler/ArtistImportHandler.cpp
 #: xbmc/media/import/handler/MovieImportHandler.cpp
 #: xbmc/media/import/handler/MusicVideoImportHandler.cpp
 #: xbmc/media/import/handler/TvShowImportHandler.cpp
-msgctxt "#37030"
+msgctxt "#37036"
 msgid "Adding %s..."
 msgstr ""
 
-#. Checking (tvshow title): (media item title)
+#. Checking (container title): (media item title)
+#: xbmc/media/import/handler/AlbumImportHandler.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
-msgctxt "#37031"
+#: xbmc/media/import/handler/SongImportHandler.cpp
+msgctxt "#37037"
 msgid "Checking %s: %s..."
 msgstr ""
 
-#. Removing (tvshow title): (media item title)
+#. Removing (container title): (media item title)
+#: xbmc/media/import/handler/AlbumImportHandler.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
-msgctxt "#37032"
+#: xbmc/media/import/handler/SongImportHandler.cpp
+msgctxt "#37038"
 msgid "Removing %s: %s..."
 msgstr ""
 
-#. Updating (tvshow title): (media item title)
+#. Updating (container title): (media item title)
+#: xbmc/media/import/handler/AlbumImportHandler.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
-msgctxt "#37033"
+#: xbmc/media/import/handler/SongImportHandler.cpp
+msgctxt "#37039"
 msgid "Updating %s: %s..."
 msgstr ""
 
-#. Adding (tvshow title): (media item title)
+#. Adding (container title): (media item title)
+#: xbmc/media/import/handler/AlbumImportHandler.cpp
 #: xbmc/media/import/handler/EpisodeImportHandler.cpp
 #: xbmc/media/import/handler/SeasonImportHandler.cpp
-msgctxt "#37034"
+#: xbmc/media/import/handler/SongImportHandler.cpp
+msgctxt "#37040"
 msgid "Adding %s: %s..."
 msgstr ""
 
 #. Retrieving media items from (media provider name)
 #: xbmc/media/import/task/MediaImportRetrievalTask.cpp
-msgctxt "#37035"
+msgctxt "#37041"
 msgid "Retrieving media items from %s..."
 msgstr ""
 
 #. Synchronising media items from (media provider name)
 #: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#37036"
+msgctxt "#37042"
 msgid "Synchronising media items from %s..."
 msgstr ""
 
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#37037"
+msgctxt "#37043"
 msgid "New media provider detected"
 msgstr ""
 
 #. No importer found for (media provider name)
 #: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#37038"
+msgctxt "#37044"
 msgid "No importer found for %s..."
 msgstr ""
 
 #. Would you like to import media items from (media provider name)?
 #: xbmc/media/import/task/MediaImportSynchronisationTask.cpp
-msgctxt "#37039"
+msgctxt "#37045"
 msgid "Would you like to import media items from %s?"
 msgstr ""
 
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#37040"
+msgctxt "#37046"
 msgid "Ignore"
 msgstr ""
 
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#37041"
+msgctxt "#37047"
 msgid "Import"
 msgstr ""
 
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#37042"
+msgctxt "#37048"
 msgid "Media types available for import:"
 msgstr ""
 
 #. (media type plural), (media type plural) (in combination with #37044)
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#37043"
+msgctxt "#37049"
 msgid "%s, %s"
 msgstr ""
 
 #. (media type plural) and (media type plural) (in combination with #37043)
 #: xbmc/media/import/task/MediaImportSourceRegistrationTask.cpp
-msgctxt "#37044"
+#: xbmc/media/import/windows/GUIWindowMediaSourceBrowser.cpp
+msgctxt "#37050"
 msgid "%s and %s"
 msgstr ""
 
 #. Retrieving (media type plural)...
 #: xbmc/network/upnp/UPnPMediaImporter.cpp
-msgctxt "#37045"
+msgctxt "#37051"
 msgid "Retrieving %s..."
 msgstr ""
 
 #. Removing import of (media type plural) from (media provider name)
-#: xbmc/media/import/repositories/VideoImportRepository.cpp
-msgctxt "#37046"
+#: xbmc/media/import/repositories/GenericMediaImportRepository.cpp
+msgctxt "#37052"
 msgid "Removing import of %s from %s..."
 msgstr ""
 
 #. Removing (media provider name)
-#: xbmc/media/import/repositories/VideoImportRepository.cpp
-msgctxt "#37047"
+#: xbmc/media/import/repositories/GenericMediaImportRepository.cpp
+msgctxt "#37053"
 msgid "Removing %s..."
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37048"
+msgctxt "#37054"
 msgid "Media provider information"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37049"
+msgctxt "#37055"
 msgid "Media import information"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37050"
+msgctxt "#37056"
 msgid "Synchronisation"
 msgstr ""
 
-#strings from 37051 to 37059 are reserved for media import setting categories
+#strings from 37056 to 37069 are reserved for media import setting categories
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37060"
+msgctxt "#37070"
 msgid "Update imported media items"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37061"
+msgctxt "#37071"
 msgid "Update playback-related metadata"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37062"
+msgctxt "#37072"
 msgid "Update metadata on the media provider"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37063"
+msgctxt "#37073"
 msgid "Update playback-related metadata on the media provider"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37064"
+msgctxt "#37074"
 msgid "Start synchronisation"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37065"
+msgctxt "#37075"
 msgid "Automatically"
 msgstr ""
 
 #: xbmc/media/import/dialogs/GUIDialogMediaImportInfo.cpp
-msgctxt "#37066"
+msgctxt "#37076"
 msgid "Manually"
 msgstr ""
 

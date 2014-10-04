@@ -37,7 +37,7 @@ CMediaImportRetrievalTask::~CMediaImportRetrievalTask()
 
 bool CMediaImportRetrievalTask::DoWork()
 {
-  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
+  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37041).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
 
   if (m_importer == NULL)
   {

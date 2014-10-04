@@ -40,7 +40,7 @@ bool CMediaImportSynchronisationTask::DoWork()
   if (m_importHandler == NULL)
     return false;
 
-  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
+  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37042).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
 
   if (ShouldCancel(0, (unsigned int)m_items.Size()))
     return false;

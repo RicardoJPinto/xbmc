@@ -101,7 +101,7 @@ bool CSeasonImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
   if (checkCancelled && task->ShouldCancel(0, items.Size()))
     return false;
   
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37026).c_str(), MediaTypes::GetPluralLocalization(MediaTypeSeason).c_str(), import.GetSource().GetFriendlyName().c_str()));
+  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeSeason).c_str(), import.GetSource().GetFriendlyName().c_str()));
   task->SetProgressText("");
 
   CFileItemList storedItems;
@@ -131,7 +131,7 @@ bool CSeasonImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
         return false;
 
       CFileItemPtr newItem = newItems[j];
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37031).c_str(),
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(),
                                                 newItem->GetVideoInfoTag()->m_strShowTitle.c_str(),
                                                 newItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
@@ -150,7 +150,7 @@ bool CSeasonImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
         if (importSettings.UpdateImportedMediaItems() &&
             !Compare(oldItem.get(), newItem.get(), true, false))
         {
-          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(),
+          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37039).c_str(),
                                                     newItem->GetVideoInfoTag()->m_strShowTitle.c_str(),
                                                     newItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
@@ -166,7 +166,7 @@ bool CSeasonImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
      * or items from a different source???
     if (!found)
     {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37032).c_str(),
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
                                                 oldItem->GetVideoInfoTag()->m_strShowTitle.c_str(),
                                                 oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
       videodb.DeleteSeason(oldItem->GetVideoInfoTag()->m_iDbId);
@@ -215,7 +215,7 @@ bool CSeasonImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
     CVideoInfoTag *season = pItem->GetVideoInfoTag();
     PrepareItem(import, pItem.get(), videodb);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), season->m_strShowTitle.c_str(), season->m_strTitle.c_str()));
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37040).c_str(), season->m_strShowTitle.c_str(), season->m_strTitle.c_str()));
     
     season->m_iIdShow = FindTvShow(tvshowsMap, pItem);
     // if the tvshow doesn't exist, create a very basic version of it with the info we got from the season

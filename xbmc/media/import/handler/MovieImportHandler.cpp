@@ -33,7 +33,7 @@ bool CMovieImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CMe
   if (checkCancelled && task->ShouldCancel(0, items.Size()))
     return false;
 
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37026).c_str(), MediaTypes::GetPluralLocalization(MediaTypeMovie).c_str(), import.GetSource().GetFriendlyName().c_str()));
+  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeMovie).c_str(), import.GetSource().GetFriendlyName().c_str()));
   task->SetProgressText("");
 
   const CMediaImportSettings &importSettings = import.GetSettings();
@@ -55,12 +55,12 @@ bool CMovieImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CMe
     CFileItemPtr oldItem = storedItems[i];
     CFileItemPtr pItem = newItems.Get(oldItem->GetVideoInfoTag()->m_strFileNameAndPath);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37027).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
     // delete items that are not in newItems
     if (pItem == NULL)
     {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37028).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
       videodb.DeleteMovie(oldItem->GetVideoInfoTag()->m_iDbId);
     }
     // item is in both lists
@@ -79,7 +79,7 @@ bool CMovieImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CMe
       if (importSettings.UpdateImportedMediaItems() &&
           !Compare(oldItem.get(), pItem.get(), importSettings.UpdateImportedMediaItems(), importSettings.UpdatePlaybackMetadataFromSource()))
       {
-        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37029).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
+        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
         PrepareExistingItem(pItem.get(), oldItem.get());
 
@@ -107,7 +107,7 @@ bool CMovieImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CMe
     CFileItemPtr pItem = newItems[i];
     PrepareItem(import, pItem.get(), videodb);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37030).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
     pItem->GetVideoInfoTag()->m_iDbId = videodb.SetDetailsForMovie(pItem->GetPath(), *(pItem->GetVideoInfoTag()), pItem->GetArt());
     SetDetailsForFile(pItem.get(), false, videodb);

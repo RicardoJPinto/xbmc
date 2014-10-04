@@ -224,7 +224,7 @@ bool CGenericMediaImportRepository::RemoveImport(const CMediaImport &import, CGU
     return false;
 
   if (progress != NULL)
-    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37046).c_str(),
+    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37052).c_str(),
                          MediaTypes::GetPluralLocalization(itImport->first.second).c_str(),
                          itImport->second.GetSource().GetFriendlyName().c_str()));
 
@@ -407,7 +407,7 @@ bool CGenericMediaImportRepository::RemoveSource(const std::string &identifier, 
     return false;
 
   if (progress != NULL)
-    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37047).c_str(), it->second.GetFriendlyName().c_str()));
+    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37053).c_str(), it->second.GetFriendlyName().c_str()));
 
   removeSource(it->second, progress);
   closeRepository();

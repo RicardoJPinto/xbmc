@@ -233,9 +233,9 @@ void CGUIDialogMediaImportInfo::SetupView()
   SetupMediaTypes();
 
   if (m_source != NULL)
-    SetHeading(37048);
+    SetHeading(37054);
   else if (m_import != NULL)
-    SetHeading(37049);
+    SetHeading(37055);
 }
 
 void CGUIDialogMediaImportInfo::InitializeSettings()
@@ -245,7 +245,7 @@ void CGUIDialogMediaImportInfo::InitializeSettings()
   if (m_import == NULL)
     return;
 
-  CSettingCategory *categorySynchronisation = AddCategory("synchronisation", 37050);
+  CSettingCategory *categorySynchronisation = AddCategory("synchronisation", 37056);
   if (categorySynchronisation == NULL)
   {
     CLog::Log(LOGERROR, "CGUIDialogMediaImportInfo: unable to setup settings");
@@ -268,9 +268,9 @@ void CGUIDialogMediaImportInfo::InitializeSettings()
   m_synchronisationUpdatePlaybackMetadataOnSource = importSettings.UpdatePlaybackMetadataOnSource();
 
   StaticIntegerSettingOptions entries;
-  entries.push_back(std::make_pair(37065, MediaImportTriggerAuto));
-  entries.push_back(std::make_pair(37066, MediaImportTriggerManual));
-  AddSpinner(groupImport, SETTING_SYNCHRONISATION_IMPORT_TRIGGER, 37064, 0, m_synchronisationImportTrigger, entries);
+  entries.push_back(std::make_pair(37075, MediaImportTriggerAuto));
+  entries.push_back(std::make_pair(37076, MediaImportTriggerManual));
+  AddSpinner(groupImport, SETTING_SYNCHRONISATION_IMPORT_TRIGGER, 37074, 0, m_synchronisationImportTrigger, entries);
 
   CSettingGroup *groupSynchronisation = AddGroup(categorySynchronisation);
   if (groupSynchronisation == NULL)
@@ -279,13 +279,13 @@ void CGUIDialogMediaImportInfo::InitializeSettings()
     return;
   }
 
-  AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_ITEMS, 37060, 0, m_synchronisationUpdateImportedMediaItems);
+  AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_ITEMS, 37070, 0, m_synchronisationUpdateImportedMediaItems);
 
   // playback related settings only make sense for non-container media types
   if (!isContainerMediaType)
   {
     CSettingBool *settingPlaybackFromSource =
-      AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_PLAYBACK_FROM_SOURCE, 37061, 0, m_synchronisationUpdatePlaybackMetadataFromSource);
+      AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_PLAYBACK_FROM_SOURCE, 37071, 0, m_synchronisationUpdatePlaybackMetadataFromSource);
     // set the parent setting to SETTING_SYNCHRONISATION_UPDATE_ITEMS
     settingPlaybackFromSource->SetParent(SETTING_SYNCHRONISATION_UPDATE_ITEMS);
     // add a dependency on SETTING_SYNCHRONISATION_UPDATE_ITEMS (parent setting) being enabled
@@ -311,7 +311,7 @@ void CGUIDialogMediaImportInfo::InitializeSettings()
   if (!isContainerMediaType)
   {
     CSettingBool *settingUpdateMetadataOnSource =
-      AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_METADATA_ON_SOURCE, 37062, 0, m_synchronisationUpdatePlaybackMetadataOnSource);
+      AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_METADATA_ON_SOURCE, 37072, 0, m_synchronisationUpdatePlaybackMetadataOnSource);
     settingUpdateMetadataOnSource->SetEnabled(canUpdatePlaybackMetadataOnSource);
 
     CSettingDependency dependencySynchronisationUpdateMetadataOnSourceEnabled(SettingDependencyTypeEnable, m_settingsManager);
@@ -321,7 +321,7 @@ void CGUIDialogMediaImportInfo::InitializeSettings()
     depsSynchronisationUpdateMetadataOnSourceEnabled.push_back(dependencySynchronisationUpdateMetadataOnSourceEnabled);
 
     CSettingBool *settingPlaycountOnSource =
-      AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_PLAYBACK_ON_SOURCE, 37063, 0, &m_synchronisationUpdatePlaybackMetadataOnSource);
+      AddToggle(groupSynchronisation, SETTING_SYNCHRONISATION_UPDATE_PLAYBACK_ON_SOURCE, 37073, 0, &m_synchronisationUpdatePlaybackMetadataOnSource);
     // set the parent setting to SETTING_SYNCHRONISATION_UPDATE_METADATA_ON_SOURCE
     settingPlaycountOnSource->SetParent(SETTING_SYNCHRONISATION_UPDATE_METADATA_ON_SOURCE);
     // disable the setting if the importer doesn't support this

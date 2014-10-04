@@ -85,7 +85,7 @@ bool CSongImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMed
   if (checkCancelled && task->ShouldCancel(0, items.Size()))
     return false;
 
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37026).c_str(), MediaTypes::GetPluralLocalization(MediaTypeSong).c_str(), import.GetSource().GetFriendlyName().c_str()));
+  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeSong).c_str(), import.GetSource().GetFriendlyName().c_str()));
   task->SetProgressText("");
 
   CFileItemList storedItems;
@@ -110,14 +110,14 @@ bool CSongImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMed
     CFileItemPtr oldItem = storedItems[i];
     CFileItemPtr pItem = newItems.Get(oldItem->GetMusicInfoTag()->GetURL());
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37031).c_str(),
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
                                               oldItem->GetMusicInfoTag()->GetAlbum().c_str(),
                                               oldItem->GetMusicInfoTag()->GetTitle().c_str()));
 
     // delete items that are not in newItems
     if (pItem == NULL)
     {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37032).c_str(),
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37038).c_str(),
                                                 oldItem->GetMusicInfoTag()->GetAlbum().c_str(),
                                                 oldItem->GetMusicInfoTag()->GetTitle().c_str()));
       // TODO: musicdb.DeleteSong(oldItem->GetMusicInfoTag()->GetDatabaseId());
@@ -138,7 +138,7 @@ bool CSongImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMed
       if (importSettings.UpdateImportedMediaItems() &&
           !Compare(oldItem.get(), pItem.get()))
       {
-        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(),
+        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37039).c_str(),
                                                   pItem->GetMusicInfoTag()->GetAlbum().c_str(),
                                                   pItem->GetMusicInfoTag()->GetTitle().c_str()));
 
@@ -193,7 +193,7 @@ bool CSongImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMed
     MUSIC_INFO::CMusicInfoTag *song = pItem->GetMusicInfoTag();
     PrepareItem(import, pItem.get(), musicdb);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(),
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37040).c_str(),
                                               song->GetAlbum().c_str(),
                                               song->GetTitle().c_str()));
     

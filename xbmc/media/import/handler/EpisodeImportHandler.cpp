@@ -85,7 +85,7 @@ bool CEpisodeImportHandler::HandleImportedItems(CVideoDatabase &videodb, const C
   if (checkCancelled && task->ShouldCancel(0, items.Size()))
     return false;
   
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37026).c_str(), MediaTypes::GetPluralLocalization(MediaTypeEpisode).c_str(), import.GetSource().GetFriendlyName().c_str()));
+  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeEpisode).c_str(), import.GetSource().GetFriendlyName().c_str()));
   task->SetProgressText("");
 
   const CMediaImportSettings &importSettings = import.GetSettings();
@@ -110,14 +110,14 @@ bool CEpisodeImportHandler::HandleImportedItems(CVideoDatabase &videodb, const C
     CFileItemPtr oldItem = storedItems[i];
     CFileItemPtr pItem = newItems.Get(oldItem->GetVideoInfoTag()->GetPath());
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37031).c_str(),
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(),
                                               oldItem->GetVideoInfoTag()->m_strShowTitle.c_str(),
                                               oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
     // delete items that are not in newItems
     if (pItem == NULL)
     {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37032).c_str(),
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
                                                 oldItem->GetVideoInfoTag()->m_strShowTitle.c_str(),
                                                 oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
       videodb.DeleteEpisode(oldItem->GetVideoInfoTag()->m_iDbId);
@@ -138,7 +138,7 @@ bool CEpisodeImportHandler::HandleImportedItems(CVideoDatabase &videodb, const C
       if (importSettings.UpdateImportedMediaItems() &&
           !Compare(oldItem.get(), pItem.get(), importSettings.UpdateImportedMediaItems(), importSettings.UpdatePlaybackMetadataFromSource()))
       {
-        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(),
+        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37039).c_str(),
                                                   pItem->GetVideoInfoTag()->m_strShowTitle.c_str(),
                                                   pItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
@@ -192,7 +192,7 @@ bool CEpisodeImportHandler::HandleImportedItems(CVideoDatabase &videodb, const C
     CVideoInfoTag *episode = pItem->GetVideoInfoTag();
     PrepareItem(import, pItem.get(), videodb);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), episode->m_strShowTitle.c_str(), episode->m_strTitle.c_str()));
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37040).c_str(), episode->m_strShowTitle.c_str(), episode->m_strTitle.c_str()));
     
     episode->m_iIdShow = FindTvShow(tvshowsMap, pItem);
     // if the tvshow doesn't exist, create a very basic version of it with the info we got from the episode

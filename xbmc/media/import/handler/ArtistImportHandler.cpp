@@ -49,7 +49,7 @@ bool CArtistImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CM
   if (checkCancelled && task->ShouldCancel(0, items.Size()))
     return false;
 
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37026).c_str(), MediaTypes::GetPluralLocalization(MediaTypeArtist).c_str(), import.GetSource().GetFriendlyName().c_str()));
+  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeArtist).c_str(), import.GetSource().GetFriendlyName().c_str()));
   task->SetProgressText("");
   
   CFileItemList storedItems;
@@ -79,7 +79,7 @@ bool CArtistImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CM
         return false;
 
       CFileItemPtr newItem = newItems[j];
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37027).c_str(), oldItem->GetLabel().c_str()));
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), oldItem->GetLabel().c_str()));
 
       if (oldItem->GetLabel() == newItem->GetLabel())
       {
@@ -96,7 +96,7 @@ bool CArtistImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CM
         if (importSettings.UpdateImportedMediaItems() &&
             !Compare(oldItem.get(), newItem.get()))
         {
-          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37029).c_str(), newItem->GetLabel().c_str()));
+          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), newItem->GetLabel().c_str()));
 
           PrepareExistingItem(newItem.get(), oldItem.get());
           UpdateArtist(*newItem, musicdb);
@@ -111,7 +111,7 @@ bool CArtistImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CM
      * or items from a different source???
     if (!found)
     {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37028).c_str(), oldItem->GetLabel().c_str()));
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), oldItem->GetLabel().c_str()));
       // TODO: musicdb.DeleteArtist(oldItem->GetMusicInfoTag()->GetDatabaseId());
     }
     */
@@ -131,7 +131,7 @@ bool CArtistImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CM
     CFileItemPtr pItem = newItems[i];
     PrepareItem(import, pItem.get(), musicdb);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37030).c_str(), pItem->GetLabel().c_str()));
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), pItem->GetLabel().c_str()));
 
     std::string mbArtistId;
     if (!pItem->GetMusicInfoTag()->GetMusicBrainzArtistID().empty())

@@ -67,7 +67,7 @@ std::set<MediaType> CMediaImportSourceRegistrationTask::ShowAndGetMediaTypesToIm
   CGUIDialogSelect* pDialogSelect = (CGUIDialogSelect*)g_windowManager.GetWindow(WINDOW_DIALOG_SELECT);
   if (pDialogSelect != NULL)
   {
-    pDialogSelect->SetHeading(37042);
+    pDialogSelect->SetHeading(37048);
     pDialogSelect->SetMultiSelection(allowMultipleImports);
 
     CFileItemList items;
@@ -118,9 +118,9 @@ bool CMediaImportSourceRegistrationTask::GetMediaTypesToImport(const std::set<Me
       {
         int labelId;
         if (itMediaType + 1 == itSupportedMediaType->end())
-          labelId = 37044;
+          labelId = 37050;
         else
-          labelId = 37043;
+          labelId = 37049;
         label = StringUtils::Format(g_localizeStrings.Get(labelId).c_str(), label.c_str(), mediaType.c_str());
       }
       else
@@ -140,7 +140,7 @@ bool CMediaImportSourceRegistrationTask::DoWork()
   if (CMediaImportManager::Get().GetImporter(m_import.GetPath()) == NULL)
   {
     CLog::Log(LOGINFO, "CMediaImportSourceRegistrationTask: unable to find an importer for source %s", m_source.GetIdentifier().c_str());
-    CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(37037).c_str(), StringUtils::Format(g_localizeStrings.Get(37038).c_str(), m_source.GetFriendlyName().c_str()));
+    CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(37043).c_str(), StringUtils::Format(g_localizeStrings.Get(37044).c_str(), m_source.GetFriendlyName().c_str()));
     return false;
   }
 
@@ -148,10 +148,10 @@ bool CMediaImportSourceRegistrationTask::DoWork()
   if (pDialog == NULL)
     return false;
 
-  pDialog->SetHeading(37037);
-  pDialog->SetText(StringUtils::Format(g_localizeStrings.Get(37039).c_str(), m_source.GetFriendlyName().c_str()));
-  pDialog->SetChoice(0, 37040);
-  pDialog->SetChoice(1, 37041);
+  pDialog->SetHeading(37043);
+  pDialog->SetText(StringUtils::Format(g_localizeStrings.Get(37045).c_str(), m_source.GetFriendlyName().c_str()));
+  pDialog->SetChoice(0, 37046);
+  pDialog->SetChoice(1, 37047);
 
   if (ShouldCancel(0, 2))
     return false;

@@ -123,7 +123,7 @@ static bool Search(CMediaImportRetrievalTask *task, PLT_DeviceDataReference &dev
   if (supportedMediaType == NULL)
     return false;
 
-  task->GetProgressBarHandle()->SetText(StringUtils::Format(g_localizeStrings.Get(37045).c_str(), MediaTypes::GetPluralLocalization(supportedMediaType->mediaType).c_str()));
+  task->GetProgressBarHandle()->SetText(StringUtils::Format(g_localizeStrings.Get(37051).c_str(), MediaTypes::GetPluralLocalization(supportedMediaType->mediaType).c_str()));
   if (!Search(device, StringUtils::Format("upnp:class = \"%s\"", supportedMediaType->objectIdentification), items))
     return false;
 

@@ -57,7 +57,7 @@ bool CTvShowImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
   if (checkCancelled && task->ShouldCancel(0, items.Size()))
     return false;
   
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37026).c_str(), MediaTypes::GetPluralLocalization(MediaTypeTvShow).c_str(), import.GetSource().GetFriendlyName().c_str()));
+  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeTvShow).c_str(), import.GetSource().GetFriendlyName().c_str()));
   task->SetProgressText("");
 
   const CMediaImportSettings &importSettings = import.GetSettings();
@@ -87,7 +87,7 @@ bool CTvShowImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
         return false;
 
       CFileItemPtr newItem = newItems[j];
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37027).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
       if (IsSameTVShow(*oldItem->GetVideoInfoTag(), *newItem->GetVideoInfoTag()))
       {
@@ -104,7 +104,7 @@ bool CTvShowImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
         if (importSettings.UpdateImportedMediaItems() &&
             !Compare(oldItem.get(), newItem.get(), true, false))
         {
-          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37029).c_str(), newItem->GetVideoInfoTag()->m_strTitle.c_str()));
+          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), newItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
           PrepareExistingItem(newItem.get(), oldItem.get());
 
@@ -122,7 +122,7 @@ bool CTvShowImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
      * or items from a different source???
     if (!found)
     {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37028).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
+      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
       videodb.DeleteTvShow(oldItem->GetVideoInfoTag()->m_iDbId);
     }
     */
@@ -142,7 +142,7 @@ bool CTvShowImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CM
     CFileItemPtr pItem = newItems[i];
     PrepareItem(import, pItem.get(), videodb);
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37030).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
+    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
 
     std::vector< std::pair<std::string, std::string> > tvshowPaths;
     tvshowPaths.push_back(std::make_pair(pItem->GetPath(), pItem->GetVideoInfoTag()->m_basePath));

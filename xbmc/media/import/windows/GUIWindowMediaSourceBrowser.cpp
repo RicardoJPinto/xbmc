@@ -223,7 +223,7 @@ bool CGUIWindowMediaSourceBrowser::OnSourceDelete(const CFileItemPtr &item)
   CGUIDialogProgress *progress = (CGUIDialogProgress*)g_windowManager.GetWindow(WINDOW_DIALOG_PROGRESS);
   if (progress != NULL)
   {
-    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37025).c_str(), item->GetLabel().c_str()));
+    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37053).c_str(), item->GetLabel().c_str()));
     progress->SetPercentage(0);
     progress->StartModal();
     progress->ShowProgressBar(true);
@@ -292,9 +292,9 @@ bool CGUIWindowMediaSourceBrowser::OnImportDelete(const CFileItemPtr &item)
     {
       int labelId;
       if (itMediaType == removedMediaTypes.end())
-        labelId = 37045;
+        labelId = 37050;
       else
-        labelId = 37044;
+        labelId = 37049;
       label = StringUtils::Format(g_localizeStrings.Get(labelId).c_str(), label.c_str(), mediaType.c_str());
     }
   }
@@ -313,7 +313,7 @@ bool CGUIWindowMediaSourceBrowser::OnImportDelete(const CFileItemPtr &item)
   CGUIDialogProgress *progress = (CGUIDialogProgress*)g_windowManager.GetWindow(WINDOW_DIALOG_PROGRESS);
   if (progress != NULL)
   {
-    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37025).c_str(), item->GetLabel().c_str()));
+    progress->SetHeading(StringUtils::Format(g_localizeStrings.Get(37053).c_str(), item->GetLabel().c_str()));
     progress->SetPercentage(0);
     progress->StartModal();
     progress->ShowProgressBar(true);
