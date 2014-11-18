@@ -33,6 +33,24 @@ public:
   virtual std::set<MediaType> GetDependencies() const;
   virtual std::vector<MediaType> GetGroupedMediaTypes() const;
 
+  virtual std::string GetItemLabel(const CFileItem* item) const;
+
+  virtual bool StartSynchronisation(const CMediaImport &import);
+
+  virtual bool AddImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool UpdateImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool RemoveImportedItem(const CMediaImport &import, const CFileItem* item);
+
 protected:
-  virtual bool HandleImportedItems(CMusicDatabase &musicdb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual bool GetLocalItems(CMusicDatabase &musicdb, const CMediaImport &import, CFileItemList& items);
+
+  virtual CFileItemPtr FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems);
+
+private:
+  int FindAlbumId(const CFileItem* songItem);
+
+  typedef std::set<CFileItemPtr> AlbumSet;
+  typedef std::map<std::string, AlbumSet> AlbumMap;
+
+  AlbumMap m_albums;
 };

@@ -70,6 +70,11 @@ public:
    */
   virtual const char* GetIdentification() const = 0;
 
+  /*!
+   * \brief Whether the imported items are already a changeset or not
+   */
+  virtual bool ProvidesChangeset() const { return false; }
+
   /*
    * \brief Checks if the implementation can import items from the given path.
    *

@@ -34,6 +34,25 @@ public:
   virtual std::set<MediaType> GetRequiredMediaTypes() const;
   virtual std::vector<MediaType> GetGroupedMediaTypes() const;
 
+  virtual std::string GetItemLabel(const CFileItem* item) const;
+
+  virtual bool StartSynchronisation(const CMediaImport &import);
+
+  virtual bool AddImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool UpdateImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool RemoveImportedItem(const CMediaImport &import, const CFileItem* item);
+
 protected:
-  virtual bool HandleImportedItems(CVideoDatabase &videodb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual bool GetLocalItems(CVideoDatabase &videodb, const CMediaImport &import, CFileItemList& items);
+
+  virtual CFileItemPtr FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems);
+  virtual MediaImportChangesetType DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemPtr localItem, CFileItemList& localItems, bool updatePlaybackMetadata);
+
+private:
+  int FindTvShowId(const CFileItem* episodeItem);
+
+  typedef std::set<CFileItemPtr> TvShowsSet;
+  typedef std::map<std::string, TvShowsSet> TvShowsMap;
+
+  TvShowsMap m_tvshows;
 };

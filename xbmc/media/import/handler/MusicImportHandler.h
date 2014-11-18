@@ -19,31 +19,46 @@
  *
  */
 
-#include "media/import/IMediaImportHandler.h"
 #include "dbwrappers/Database.h"
+#include "media/import/IMediaImportHandler.h"
+#include "music/MusicDatabase.h"
+#include "music/MusicThumbLoader.h"
 
 class CFileItem;
-class CMusicDatabase;
 
 class CMusicImportHandler : public IMediaImportHandler
 {
 public:
   virtual ~CMusicImportHandler() { }
 
-  virtual void HandleImportedItems(const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual std::string GetItemLabel(const CFileItem* item) const;
+
+  virtual bool GetLocalItems(const CMediaImport &import, CFileItemList& items);
+
+  virtual bool StartChangeset(const CMediaImport &import);
+  virtual bool FinishChangeset(const CMediaImport &import);
+  virtual MediaImportChangesetType DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemList& localItems);
+
+  virtual bool StartSynchronisation(const CMediaImport &import);
+  virtual bool FinishSynchronisation(const CMediaImport &import);
 
   virtual void SetImportedItemsEnabled(const CMediaImport &import, bool enable);
 
 protected:
   CMusicImportHandler() { }
 
-  virtual bool HandleImportedItems(CMusicDatabase &musicdb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task) = 0;
+  virtual bool GetLocalItems(CMusicDatabase &musicdb, const CMediaImport &import, CFileItemList& items) = 0;
 
-  void PrepareItem(const CMediaImport &import, CFileItem* pItem, CMusicDatabase &musicdb);
+  virtual CFileItemPtr FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems) = 0;
+
+  void PrepareItem(const CMediaImport &import, CFileItem* pItem);
   void PrepareExistingItem(CFileItem *updatedItem, const CFileItem *originalItem);
-  void SetDetailsForFile(const CFileItem *pItem, CMusicDatabase &musicdb);
-  bool SetImportForItem(const CFileItem *pItem, const CMediaImport &import, CMusicDatabase &musicdb);
+  void SetDetailsForFile(const CFileItem *pItem);
+  bool SetImportForItem(const CFileItem *pItem, const CMediaImport &import);
 
   static CDatabase::Filter GetFilter(const CMediaImport &import, bool enabledItems = false);
   static bool Compare(const CFileItem *originalItem, const CFileItem *newItem);
+
+  CMusicDatabase m_db;
+  CMusicThumbLoader m_thumbLoader;
 };

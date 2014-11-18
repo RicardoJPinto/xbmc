@@ -20,16 +20,12 @@
 
 #include "AlbumImportHandler.h"
 #include "FileItem.h"
-#include "dialogs/GUIDialogExtendedProgressBar.h"
-#include "media/import/IMediaImportTask.h"
-#include "music/MusicDatabase.h"
-#include "music/MusicThumbLoader.h"
 #include "utils/StringUtils.h"
 
 /*!
  * Checks whether two albums are the same by comparing them by title and album artist
  */
-static bool IsSameAlbum(MUSIC_INFO::CMusicInfoTag& left, MUSIC_INFO::CMusicInfoTag& right)
+static bool IsSameAlbum(const MUSIC_INFO::CMusicInfoTag& left, const MUSIC_INFO::CMusicInfoTag& right)
 {
   return left.GetAlbum()      == right.GetAlbum()
     && left.GetAlbumArtist()  == right.GetAlbumArtist();
@@ -58,118 +54,65 @@ std::vector<MediaType> CAlbumImportHandler::GetGroupedMediaTypes() const
   return types;
 }
 
-bool CAlbumImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
+std::string CAlbumImportHandler::GetItemLabel(const CFileItem* item) const
 {
-  bool checkCancelled = task != NULL;
-  if (checkCancelled && task->ShouldCancel(0, items.Size()))
-    return false;
-
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeAlbum).c_str(), import.GetSource().GetFriendlyName().c_str()));
-  task->SetProgressText("");
-  
-  CFileItemList storedItems;
-  musicdb.GetAlbumsByWhere("musicdb://albums/", GetFilter(import), storedItems);
-  
-  int total = storedItems.Size() + items.Size();
-  if (checkCancelled && task->ShouldCancel(0, total))
-    return false;
-
-  const CMediaImportSettings &importSettings = import.GetSettings();
-  CMusicThumbLoader thumbLoader;
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderStart();
-
-  int progress = 0;
-  CFileItemList newItems; newItems.Copy(items);
-  for (int i = 0; i < storedItems.Size(); i++)
+  if (item != NULL && item->HasMusicInfoTag() && !item->GetMusicInfoTag()->GetAlbum().empty())
   {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
-
-    CFileItemPtr oldItem = storedItems[i];
-    bool found = false;
-    for (int j = 0; j < newItems.Size() ; j++)
-    {
-      if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-        return false;
-
-      CFileItemPtr newItem = newItems[j];
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(),
-                                                newItem->GetMusicInfoTag()->GetAlbumArtist().at(0).c_str(), // TODO
-                                                newItem->GetMusicInfoTag()->GetAlbum().c_str()));
-
-      if (IsSameAlbum(*oldItem->GetMusicInfoTag(), *newItem->GetMusicInfoTag()))
-      {
-        // get rid of items we already have from the new items list
-        newItems.Remove(j);
-        total--;
-        found = true;
-
-        if (importSettings.UpdateImportedMediaItems())
-          thumbLoader.LoadItem(oldItem.get());
-        
-        // check if we need to update (db writing is expensive)
-        // but only if synchronisation is enabled
-        if (importSettings.UpdateImportedMediaItems() &&
-            !Compare(oldItem.get(), newItem.get()))
-        {
-          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37039).c_str(),
-                                                    newItem->GetMusicInfoTag()->GetAlbumArtist().at(0).c_str(), // TODO
-                                                    newItem->GetMusicInfoTag()->GetAlbum().c_str()));
-
-          PrepareExistingItem(newItem.get(), oldItem.get());
-
-          CAlbum album(*newItem);
-          musicdb.UpdateAlbum(album);
-        }
-
-        break;
-      }
-    }
-
-    /* TODO: delete items that are not in newItems
-     * what if the same album exists with some local items
-     * or items from a different source???
-    if (!found)
-    {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
-                                                oldItem->GetMusicInfoTag()->GetAlbumArtist().at(0).c_str(), // TODO
-                                                oldItem->GetMusicInfoTag()->GetAlbum().c_str()));
-      // TODO: musicdb.DeleteAlbum(oldItem->GetMusicInfoTag()->GetDatabaseId());
-    }
-    */
-
-    task->SetProgress(progress++, total);
+    return StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
+      item->GetMusicInfoTag()->GetAlbumArtist().at(0).c_str(), // TODO
+      item->GetMusicInfoTag()->GetAlbum().c_str());
   }
 
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderFinish();
+  return CMusicImportHandler::GetItemLabel(item);
+}
 
-  if (newItems.Size() <= 0)
-    return true;
+bool CAlbumImportHandler::AddImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL)
+    return false;
 
-  // add any (remaining) new items
-  for (int i = 0; i < newItems.Size(); i++)
+  PrepareItem(import, item);
+
+  CAlbum album(*item);
+  if (!m_db.AddAlbum(album))
+    return false;
+
+  item->SetFromAlbum(album);
+  return SetImportForItem(item, import);
+}
+
+bool CAlbumImportHandler::UpdateImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL || !item->HasMusicInfoTag())
+    return false;
+
+  CAlbum album(*item);
+  return m_db.UpdateAlbum(album);
+}
+
+bool CAlbumImportHandler::RemoveImportedItem(const CMediaImport &import, const CFileItem* item)
+{
+  if (item == NULL || !item->HasMusicInfoTag())
+    return false;
+
+  // TODO
+
+  return false;
+}
+
+bool CAlbumImportHandler::GetLocalItems(CMusicDatabase &musicdb, const CMediaImport &import, CFileItemList& items)
+{
+  return musicdb.GetAlbumsByWhere("musicdb://albums/", GetFilter(import), items);
+}
+
+CFileItemPtr CAlbumImportHandler::FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems)
+{
+  for (int i = 0; i < localItems.Size(); ++i)
   {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
-
-    CFileItemPtr pItem = newItems[i];
-    PrepareItem(import, pItem.get(), musicdb);
-
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37040).c_str(),
-                                              pItem->GetMusicInfoTag()->GetAlbumArtist().at(0).c_str(), // TODO
-                                              pItem->GetMusicInfoTag()->GetAlbum().c_str()));
-
-    CAlbum album(*pItem);
-    if (musicdb.AddAlbum(album))
-    {
-      pItem->SetFromAlbum(album);
-      SetImportForItem(pItem.get(), import, musicdb);
-    }
-
-    task->SetProgress(progress++, total);
+    CFileItemPtr localItem = localItems.Get(i);
+    if (IsSameAlbum(*item->GetMusicInfoTag(), *localItem->GetMusicInfoTag()))
+      return localItem;
   }
 
-  return true;
+  return CFileItemPtr();
 }

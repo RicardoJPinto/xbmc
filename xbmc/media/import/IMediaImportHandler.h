@@ -24,7 +24,9 @@
 #include "media/MediaType.h"
 #include "media/import/IMediaImporter.h"
 #include "media/import/MediaImport.h"
+#include "media/import/MediaImportChangesetTypes.h"
 
+class CFileItem;
 class CFileItemList;
 class IMediaImportTask;
 
@@ -60,19 +62,94 @@ public:
   virtual std::vector<MediaType> GetGroupedMediaTypes() const { return std::vector<MediaType>(); }
 
   /*!
-   * \brief Handles the given list of media items (must all be of the supported
-   * media type) previously imported by the given media importer.
+  * \brief Get the translated label representing the given item
+  *
+  * \param item Item to get the label for
+  * \return Translated label representing the given item
+  */
+  virtual std::string GetItemLabel(const CFileItem* item) const = 0;
+
+  /*!
+  * \brief Gets a list of previously imported items from the given media import.
+  *
+  * \param import place from where the given items were imported
+  * \param items List of previously imported items from the given media import
+  */
+  virtual bool GetLocalItems(const CMediaImport &import, CFileItemList& items) = 0;
+
+  /*!
+   * \brief TODO
    *
-   * \param import place from which the given items were imported
-   * \param items list of media items of the supported media type
-   * \param progressBar progress bar handler
+   * \param import TODO
+   * \return TODO
    */
-  virtual void HandleImportedItems(const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task) = 0;
+  virtual bool StartChangeset(const CMediaImport &import) = 0;
+
+  /*!
+  * \brief TODO
+  *
+  * \param import TODO
+  * \return TODO
+  */
+  virtual bool FinishChangeset(const CMediaImport &import) = 0;
+
+  /*!
+  * \brief TODO
+  *
+  * \param import TODO
+  * \param item TODO
+  * \param localItems TODO
+  * \return TODO
+  */
+  virtual MediaImportChangesetType DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemList& localItems) = 0;
+
+  /*!
+  * \brief Starts the synchronisation process
+  *
+  * \param import TODO
+  * \return TODO
+  */
+  virtual bool StartSynchronisation(const CMediaImport &import) = 0;
+
+  /*!
+  * \brief Finishs the synchronisation process
+  *
+  * \param import TODO
+  * \return TODO
+  */
+  virtual bool FinishSynchronisation(const CMediaImport &import) = 0;
+
+  /*!
+   * \brief Adds the given item from the given import to the library
+   *
+   * \param import TODO
+   * \param item TODO
+   * \return TODO
+   */
+  virtual bool AddImportedItem(const CMediaImport &import, CFileItem* item) = 0;
+
+  /*!
+   * \brief Updates the given item from the given import in the library
+   *
+   * \param import TODO
+   * \param item TODO
+   * \return TODO
+   */
+  virtual bool UpdateImportedItem(const CMediaImport &import, CFileItem* item) = 0;
+
+  /*!
+   * \brief Removes the given item from the given import from the library
+   *
+   * \param import TODO
+   * \param item TODO
+   * \return TODO
+   */
+  virtual bool RemoveImportedItem(const CMediaImport &import, const CFileItem* item) = 0;
 
   /*!
    * \brief Enable/disable imported items
    *
-   * \param importPath Path of the import
+   * \param import TODO
    * \param enable Whether to enable or disable imported items
    */
   virtual void SetImportedItemsEnabled(const CMediaImport &import, bool enable) = 0;

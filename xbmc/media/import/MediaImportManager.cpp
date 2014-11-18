@@ -31,7 +31,9 @@
 #include "media/import/MediaImport.h"
 #include "media/import/MediaImportSource.h"
 #include "media/import/MediaImportTaskProcessorJob.h"
+#include "media/import/task/MediaImportChangesetTask.h"
 #include "media/import/task/MediaImportRetrievalTask.h"
+#include "media/import/task/MediaImportScrapingTask.h"
 #include "media/import/task/MediaImportSourceRegistrationTask.h"
 #include "media/import/task/MediaImportSynchronisationTask.h"
 #include "media/import/task/MediaImportUpdateTask.h"
@@ -1116,7 +1118,18 @@ void CMediaImportManager::Import(const CMediaImport &import, bool automatically 
 
   CMediaImportTaskProcessorJob *processorJob = new CMediaImportTaskProcessorJob(import.GetSource().GetIdentifier(), this);
 
-  CMediaImportRetrievalTask *retrievalTask = new CMediaImportRetrievalTask(import);
+  CSingleLock handlersLock(m_importHandlersLock);
+  // find the proper media import handler to handle the retrieval of items
+  std::map<MediaType, IMediaImportHandler*>::const_iterator itMediaImportHandler = m_importHandlersMap.find(import.GetMediaType());
+  if (itMediaImportHandler == m_importHandlersMap.end())
+  {
+    CLog::Log(LOGWARNING, "CMediaImportManager: failed to import media items of type %s from %s", import.GetMediaType().c_str(), import.GetSource().GetIdentifier().c_str());
+    return;
+  }
+
+  CMediaImportRetrievalTask* retrievalTask = new CMediaImportRetrievalTask(import, (*itMediaImportHandler).second->Create());
+  handlersLock.Leave();
+
   processorJob->SetTask(retrievalTask);
   AddTaskProcessorJob(import.GetSource().GetIdentifier(), processorJob);
 
@@ -1291,7 +1304,7 @@ std::vector<IMediaImportTask*> CMediaImportManager::OnTaskComplete(bool success,
   std::string taskType = task->GetType();
   if (taskType.compare("MediaImportSourceRegistrationTask") == 0)
   {
-    CMediaImportSourceRegistrationTask *registrationTask = static_cast<CMediaImportSourceRegistrationTask*>(task);
+    CMediaImportSourceRegistrationTask *registrationTask = dynamic_cast<CMediaImportSourceRegistrationTask*>(task);
     if (registrationTask == NULL)
       return nextTasks;
 
@@ -1326,16 +1339,16 @@ std::vector<IMediaImportTask*> CMediaImportManager::OnTaskComplete(bool success,
         imported.push_back(*itImport);
         OnImportAdded(*itImport);
       }
+      else
+        CLog::Log(LOGWARNING, "CMediaImportManager: failed to add %s import from %s for source %s to any import repository",
+          itImport->GetMediaType().c_str(), itImport->GetPath().c_str(), source.GetIdentifier().c_str());
+
 
       added |= success;
     }
 
     if (!added)
-    {
-      if (!imports.empty())
-        CLog::Log(LOGWARNING, "CMediaImportManager: failed to add %zu imports for source %s to any import repository", imports.size(), source.GetIdentifier().c_str());
       return nextTasks;
-    }
     
     CSingleLock handlersLock(m_importHandlersLock);
     // start processing all imports of the source
@@ -1346,19 +1359,19 @@ std::vector<IMediaImportTask*> CMediaImportManager::OnTaskComplete(bool success,
       {
         if (MediaTypes::IsMediaType((*itHandler)->GetMediaType(), itImport->GetMediaType()))
         {
-          nextTasks.push_back(new CMediaImportRetrievalTask(*itImport));
+          nextTasks.push_back(new CMediaImportRetrievalTask(*itImport, (*itHandler)->Create()));
           imported.erase(itImport);
           break;
         }
       }
     }
 
-    if (!imported.empty())
-      CLog::Log(LOGWARNING, "CMediaImportManager: failed to retrieve media items for %zu imports", imported.size());
+    for (std::vector<CMediaImport>::iterator itImport = imported.begin(); itImport != imported.end(); ++itImport)
+      CLog::Log(LOGWARNING, "CMediaImportManager: failed to retrieve %s items from %s", itImport->GetMediaType().c_str(), itImport->GetPath().c_str());
   }
   else if (taskType.compare("MediaImportRetrievalTask") == 0)
   {
-    CMediaImportRetrievalTask* retrievalTask = static_cast<CMediaImportRetrievalTask*>(task);
+    CMediaImportRetrievalTask* retrievalTask = dynamic_cast<CMediaImportRetrievalTask*>(task);
     if (retrievalTask == NULL)
       return nextTasks;
 
@@ -1369,45 +1382,125 @@ std::vector<IMediaImportTask*> CMediaImportManager::OnTaskComplete(bool success,
     // nothing to do if the import job failed
     if (!success)
     {
-      CLog::Log(LOGWARNING, "CMediaImportManager: media retrieval task for %s using %s failed", importer->GetSourceIdentifier().c_str(), importer->GetIdentification());
+      CLog::Log(LOGWARNING, "CMediaImportManager: media import retrieval task of %s items from %s using %s failed",
+        retrievalTask->GetImport().GetMediaType().c_str(), retrievalTask->GetImport().GetPath().c_str(), importer->GetIdentification());
       return nextTasks;
     }
   
-    CLog::Log(LOGINFO, "CMediaImportManager: media retrieval task for %s using %s successfully finished", importer->GetSourceIdentifier().c_str(), importer->GetIdentification());
+    CLog::Log(LOGINFO, "CMediaImportManager: media import retrieval task of %s items from %s using %s successfully finished",
+      retrievalTask->GetImport().GetMediaType().c_str(), retrievalTask->GetImport().GetPath().c_str(), importer->GetIdentification());
 
     CSingleLock handlersLock(m_importHandlersLock);
     // find the proper media import handler to handle the retrieved items
     std::map<MediaType, IMediaImportHandler*>::const_iterator itMediaImportHandler = m_importHandlersMap.find(retrievalTask->GetMediaType());
-    if (itMediaImportHandler != m_importHandlersMap.end())
+    if (itMediaImportHandler == m_importHandlersMap.end())
+      return nextTasks;
+
+    // get the list of imported items
+    ChangesetItems importedItems = retrievalTask->GetRetrievedItems();
+
+    // if the importer already provides a changeset there's no need to run a CMediaImportChangesetTask
+    if (importer->ProvidesChangeset())
     {
-      CFileItemList importedItems;
-      // get the list of imported items
-      if (retrievalTask->GetImportedMedia(importedItems))
-        nextTasks.push_back(new CMediaImportSynchronisationTask(retrievalTask->GetImport(), itMediaImportHandler->second->Create(), importedItems));
-      else
-        CLog::Log(LOGINFO, "CMediaImportManager: no media items of type %s imported for %s", retrievalTask->GetMediaType().c_str(), importer->GetSourceIdentifier().c_str());
+      if (importedItems.empty())
+      {
+        CLog::Log(LOGINFO, "CMediaImportManager: no %s items from %s changed",
+          retrievalTask->GetMediaType().c_str(), retrievalTask->GetImport().GetPath().c_str());
+        return nextTasks;
+      }
+
+      // TODO: handle scraping
+      nextTasks.push_back(new CMediaImportSynchronisationTask(retrievalTask->GetImport(), itMediaImportHandler->second->Create(), importedItems));
     }
     else
-      CLog::Log(LOGWARNING, "CMediaImportManager: no media import handler found to handle \"%s\"", retrievalTask->GetMediaType().c_str());
+    {
+      const CFileItemList& localItems = retrievalTask->GetLocalItems();
+      if (importedItems.empty() && localItems.IsEmpty())
+      {
+        CLog::Log(LOGINFO, "CMediaImportManager: no %s items imported from %s",
+          retrievalTask->GetMediaType().c_str(), retrievalTask->GetImport().GetPath().c_str());
+        return nextTasks;
+      }
+
+      nextTasks.push_back(new CMediaImportChangesetTask(retrievalTask->GetImport(), itMediaImportHandler->second->Create(), localItems, importedItems));
+    }
+  }
+  else if (taskType.compare("MediaImportChangesetTask") == 0)
+  {
+    CMediaImportChangesetTask* changesetTask = dynamic_cast<CMediaImportChangesetTask*>(task);
+    if (changesetTask == NULL)
+      return nextTasks;
+
+    if (!success)
+    {
+      CLog::Log(LOGWARNING, "CMediaImportManager: media import changeset task of %s items from %s failed",
+        changesetTask->GetImport().GetMediaType().c_str(), changesetTask->GetImport().GetPath().c_str());
+      return nextTasks;
+    }
+
+    CLog::Log(LOGINFO, "CMediaImportManager: media import changeset task of %s items from %s successfully finished",
+      changesetTask->GetImport().GetMediaType().c_str(), changesetTask->GetImport().GetPath().c_str());
+
+    const ChangesetItems& changesetItems = changesetTask->GetChangeset();
+    if (changesetItems.empty())
+    {
+      CLog::Log(LOGINFO, "CMediaImportManager: no %s items from %s changed",
+        changesetTask->GetImport().GetMediaType().c_str(), changesetTask->GetImport().GetPath().c_str());
+      return nextTasks;
+    }
+
+    CSingleLock handlersLock(m_importHandlersLock);
+    // find the proper media import handler to handle the items
+    std::map<MediaType, IMediaImportHandler*>::const_iterator itMediaImportHandler = m_importHandlersMap.find(changesetTask->GetImport().GetMediaType());
+    if (itMediaImportHandler == m_importHandlersMap.end())
+      return nextTasks;
+
+    // TODO: handle scraping
+    nextTasks.push_back(new CMediaImportSynchronisationTask(changesetTask->GetImport(), itMediaImportHandler->second->Create(), changesetItems));
+  }
+  else if (taskType.compare("MediaImportScrapingTask") == 0)
+  {
+    CMediaImportScrapingTask* scrapingTask = dynamic_cast<CMediaImportScrapingTask*>(task);
+    if (scrapingTask == NULL)
+      return nextTasks;
+
+    if (!success)
+    {
+      CLog::Log(LOGWARNING, "CMediaImportManager: media import scraping task of %s items from %s failed",
+        scrapingTask->GetImport().GetMediaType().c_str(), scrapingTask->GetImport().GetPath().c_str());
+      return nextTasks;
+    }
+
+    CLog::Log(LOGINFO, "CMediaImportManager: media import scraping task of %s items from %s successfully finished",
+      scrapingTask->GetImport().GetMediaType().c_str(), scrapingTask->GetImport().GetPath().c_str());
+
+    CSingleLock handlersLock(m_importHandlersLock);
+    // find the proper media import handler to handle the items
+    std::map<MediaType, IMediaImportHandler*>::const_iterator itMediaImportHandler = m_importHandlersMap.find(scrapingTask->GetImport().GetMediaType());
+    if (itMediaImportHandler == m_importHandlersMap.end())
+      return nextTasks;
+
+    const ChangesetItems& items = scrapingTask->GetItems();
+    nextTasks.push_back(new CMediaImportSynchronisationTask(scrapingTask->GetImport(), itMediaImportHandler->second->Create(), items));
   }
   else if (taskType.compare("MediaImportSynchronisationTask") == 0)
   {
-    CMediaImportSynchronisationTask* synchronisationTask = static_cast<CMediaImportSynchronisationTask*>(task);
+    CMediaImportSynchronisationTask* synchronisationTask = dynamic_cast<CMediaImportSynchronisationTask*>(task);
     if (synchronisationTask == NULL)
       return nextTasks;
 
-    if (success)
+    if (!success)
+      return nextTasks;
+
+    CMediaImport import = synchronisationTask->GetImport();
+    CSingleLock repositoriesLock(m_importRepositoriesLock);
+    for (std::set<IMediaImportRepository*>::iterator itRepository = m_importRepositories.begin(); itRepository != m_importRepositories.end(); ++itRepository)
     {
-      CMediaImport import = synchronisationTask->GetImport();
-      CSingleLock repositoriesLock(m_importRepositoriesLock);
-      for (std::set<IMediaImportRepository*>::iterator itRepository = m_importRepositories.begin(); itRepository != m_importRepositories.end(); ++itRepository)
+      if ((*itRepository)->UpdateLastSync(import))
       {
-        if ((*itRepository)->UpdateLastSync(import))
-        {
-          OnSourceUpdated(import.GetSource());
-          OnImportUpdated(import);
-          break;
-        }
+        OnSourceUpdated(import.GetSource());
+        OnImportUpdated(import);
+        break;
       }
     }
   }

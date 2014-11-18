@@ -21,16 +21,17 @@
 
 #include <map>
 
-#include "FileItem.h"
 #include "media/MediaType.h"
 #include "media/import/IMediaImportTask.h"
+#include "media/import/MediaImportChangesetTypes.h"
 
 class IMediaImporter;
+class IMediaImportHandler;
 
 class CMediaImportRetrievalTask : public IMediaImportTask
 {
 public:
-  CMediaImportRetrievalTask(const CMediaImport &import);
+  CMediaImportRetrievalTask(const CMediaImport &import, IMediaImportHandler *importHandler);
   virtual ~CMediaImportRetrievalTask();
 
   /*!
@@ -39,32 +40,49 @@ public:
   IMediaImporter* GetImporter() const { return m_importer; }
 
   /*!
-   * \brief TODO
+   * \brief Get the media type of the media import
    */
   const MediaType& GetMediaType() const { return GetImport().GetMediaType(); }
 
   /*!
-   * \brief Get a list of imported items of the given media type
+   * \brief Get a list of imported items
    *
    * \param mediaType media type of the imported items
-   * \param list of imported items
+   * \return list of imported items
    */
-  bool GetImportedMedia(CFileItemList& items) const;
+  const ChangesetItems& GetRetrievedItems() const { return m_retrievedItems; }
 
   /*!
-   * \brief Add an imported item of a specific media type
+  * \brief Get a list of previously imported items
+  *
+  * \param mediaType media type of the previously imported items
+  * \return list of previously imported items
+  */
+  const CFileItemList& GetLocalItems() const { return m_localItems; }
+
+  /*!
+   * \brief Add an imported item of a specific changeset type
    *
-   * \param media type of the imported item
    * \param item imported item
+   * \param changesetType changeset type of the imported item
    */
-  void AddItem(const CFileItemPtr& item);
+  void AddItem(const CFileItemPtr& item, MediaImportChangesetType changesetType = MediaImportChangesetTypeNone);
+
+  /*!
+  * \brief Add a list of imported items of a specific changeset type
+  *
+  * \param items imported items
+  * \param changesetType changeset type of the imported items
+  */
+  void AddItems(const CFileItemList& items, MediaImportChangesetType changesetType = MediaImportChangesetTypeNone);
+
   /*!
    * \brief Add a list of imported items of a specific media type
    *
-   * \param media type of the imported item
    * \param items imported items
+   * \param changesetType changeset type of the imported items
    */
-  void SetItems(const std::vector<CFileItemPtr>& items);
+  void SetItems(const ChangesetItems& items);
 
   // implementation of IMediaImportTask
   virtual bool DoWork();
@@ -72,5 +90,7 @@ public:
 
 protected:
   IMediaImporter* m_importer;
-  std::vector<CFileItemPtr> m_importedMedia;
+  IMediaImportHandler *m_importHandler;
+  ChangesetItems m_retrievedItems;
+  CFileItemList m_localItems;
 };

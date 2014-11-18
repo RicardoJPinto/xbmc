@@ -20,101 +20,47 @@
 
 #include "MovieImportHandler.h"
 #include "FileItem.h"
-#include "dialogs/GUIDialogExtendedProgressBar.h"
-#include "guilib/LocalizeStrings.h"
-#include "media/import/IMediaImportTask.h"
-#include "utils/StringUtils.h"
 #include "video/VideoDatabase.h"
-#include "video/VideoThumbLoader.h"
 
-bool CMovieImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
+bool CMovieImportHandler::GetLocalItems(CVideoDatabase &videodb, const CMediaImport &import, CFileItemList& items)
 {
-  bool checkCancelled = task != NULL;
-  if (checkCancelled && task->ShouldCancel(0, items.Size()))
+  return videodb.GetMoviesByWhere("videodb://movies/titles/", GetFilter(import), items, SortDescription(), import.GetSettings().UpdateImportedMediaItems());
+}
+
+bool CMovieImportHandler::AddImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL)
     return false;
 
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeMovie).c_str(), import.GetSource().GetFriendlyName().c_str()));
-  task->SetProgressText("");
+  PrepareItem(import, item);
 
-  const CMediaImportSettings &importSettings = import.GetSettings();
-  CFileItemList storedItems;
-  videodb.GetMoviesByWhere("videodb://movies/titles/", GetFilter(import), storedItems, SortDescription(), importSettings.UpdateImportedMediaItems());
+  item->GetVideoInfoTag()->m_iDbId = m_db.SetDetailsForMovie(item->GetPath(), *(item->GetVideoInfoTag()), item->GetArt());
+  if (item->GetVideoInfoTag()->m_iDbId <= 0)
+    return false;
 
-  CVideoThumbLoader thumbLoader;
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderStart();
-  
-  int progress = 0;
-  int total = storedItems.Size() + items.Size();
-  CFileItemList newItems; newItems.Copy(items);
-  for (int i = 0; i < storedItems.Size(); i++)
-  {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
+  SetDetailsForFile(item, false);
+  return SetImportForItem(item, import);
+}
 
-    CFileItemPtr oldItem = storedItems[i];
-    CFileItemPtr pItem = newItems.Get(oldItem->GetVideoInfoTag()->m_strFileNameAndPath);
+bool CMovieImportHandler::UpdateImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL || !item->HasVideoInfoTag() || item->GetVideoInfoTag()->m_iDbId <= 0)
+    return false;
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
+  if (m_db.SetDetailsForMovie(item->GetPath(), *(item->GetVideoInfoTag()), item->GetArt(), item->GetVideoInfoTag()->m_iDbId) <= 0)
+    return false;
 
-    // delete items that are not in newItems
-    if (pItem == NULL)
-    {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
-      videodb.DeleteMovie(oldItem->GetVideoInfoTag()->m_iDbId);
-    }
-    // item is in both lists
-    else
-    {
-      // get rid of items we already have from the new items list
-      newItems.Remove(pItem.get());
-      total--;
+  if (import.GetSettings().UpdatePlaybackMetadataFromSource())
+    SetDetailsForFile(item, true);
 
-      // only process the item with the thumb loader if updates to artwork etc. are allowed
-      if (importSettings.UpdateImportedMediaItems())
-        thumbLoader.LoadItem(oldItem.get());
+  return true;
+}
 
-      // check if we need to update (db writing is expensive)
-      // but only if synchronisation is enabled
-      if (importSettings.UpdateImportedMediaItems() &&
-          !Compare(oldItem.get(), pItem.get(), importSettings.UpdateImportedMediaItems(), importSettings.UpdatePlaybackMetadataFromSource()))
-      {
-        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
+bool CMovieImportHandler::RemoveImportedItem(const CMediaImport &import, const CFileItem* item)
+{
+  if (item == NULL || !item->HasVideoInfoTag())
+    return false;
 
-        PrepareExistingItem(pItem.get(), oldItem.get());
-
-        if (importSettings.UpdateImportedMediaItems())
-        {
-          videodb.SetDetailsForMovie(pItem->GetPath(), *(pItem->GetVideoInfoTag()), pItem->GetArt(), pItem->GetVideoInfoTag()->m_iDbId);
-          if (importSettings.UpdatePlaybackMetadataFromSource())
-            SetDetailsForFile(pItem.get(), true, videodb);
-        }
-      }
-    }
-
-    task->SetProgress(progress++, total);
-  }
-
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderFinish();
-
-  // add any (remaining) new items
-  for (int i = 0; i < newItems.Size(); i++)
-  {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
-
-    CFileItemPtr pItem = newItems[i];
-    PrepareItem(import, pItem.get(), videodb);
-
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
-
-    pItem->GetVideoInfoTag()->m_iDbId = videodb.SetDetailsForMovie(pItem->GetPath(), *(pItem->GetVideoInfoTag()), pItem->GetArt());
-    SetDetailsForFile(pItem.get(), false, videodb);
-    SetImportForItem(pItem.get(), import, videodb);
-
-    task->SetProgress(progress++, total);
-  }
-
+  m_db.DeleteMovie(item->GetVideoInfoTag()->m_iDbId);
   return true;
 }

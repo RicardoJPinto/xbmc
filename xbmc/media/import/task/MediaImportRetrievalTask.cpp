@@ -21,23 +21,28 @@
 #include "MediaImportRetrievalTask.h"
 #include "guilib/LocalizeStrings.h"
 #include "media/import/IMediaImporter.h"
+#include "media/import/IMediaImportHandler.h"
 #include "media/import/MediaImportManager.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
 
-CMediaImportRetrievalTask::CMediaImportRetrievalTask(const CMediaImport &import)
+CMediaImportRetrievalTask::CMediaImportRetrievalTask(const CMediaImport &import, IMediaImportHandler *importHandler)
   : IMediaImportTask(import),
-    m_importer(NULL)
+    m_importer(NULL),
+    m_importHandler(importHandler),
+    m_retrievedItems(),
+    m_localItems()
 { }
 
 CMediaImportRetrievalTask::~CMediaImportRetrievalTask()
 {
+  delete m_importHandler;
   delete m_importer;
 }
 
 bool CMediaImportRetrievalTask::DoWork()
 {
-  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37041).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
+  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37040).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
 
   if (m_importer == NULL)
   {
@@ -58,24 +63,31 @@ bool CMediaImportRetrievalTask::DoWork()
     }
   }
 
+  // first get a list of items previously imported from the media import
+  if (m_importHandler != NULL)
+  {
+    if (!m_importHandler->GetLocalItems(m_import, m_localItems))
+    {
+      CLog::Log(LOGERROR, "CMediaImportRetrievalTask: failed to get previously imported items of type %s from %s", m_import.GetMediaType().c_str(), m_import.GetPath().c_str());
+      return false;
+    }
+  }
+
   return m_importer->Import(this);
 }
 
-void CMediaImportRetrievalTask::AddItem(const CFileItemPtr& item)
+void CMediaImportRetrievalTask::AddItem(const CFileItemPtr& item, MediaImportChangesetType changesetType /* = MediaImportChangesetTypeNone */)
 {
-  m_importedMedia.push_back(item);
+  m_retrievedItems.push_back(std::make_pair(changesetType, item));
 }
 
-void CMediaImportRetrievalTask::SetItems(const std::vector<CFileItemPtr>& items)
+void CMediaImportRetrievalTask::AddItems(const CFileItemList& items, MediaImportChangesetType changesetType /* = MediaImportChangesetTypeNone */)
 {
-  m_importedMedia = items;
+  for (int index = 0; index < items.Size(); ++index)
+    AddItem(items.Get(index), changesetType);
 }
 
-bool CMediaImportRetrievalTask::GetImportedMedia(CFileItemList& list) const
+void CMediaImportRetrievalTask::SetItems(const ChangesetItems& items)
 {
-  list.SetFastLookup(true);
-  for (std::vector<CFileItemPtr>::const_iterator it = m_importedMedia.begin() ; it != m_importedMedia.end() ; ++it)
-    list.Add(*it);
-
-  return true;
+  m_retrievedItems = items;
 }

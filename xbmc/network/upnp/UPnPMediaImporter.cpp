@@ -236,16 +236,15 @@ bool CUPnPMediaImporter::Import(CMediaImportRetrievalTask* task) const
   if (!Search(task, device, importedMediaType, items))
     return false;
 
-  // remove any items that are not part of the requested path
-  for (std::vector<CFileItemPtr>::iterator itItem = items.begin(); itItem != items.end(); )
+  // ignore any items that are not part of the requested path
+  CFileItemList itemList;
+  for (std::vector<CFileItemPtr>::iterator itItem = items.begin(); itItem != items.end(); ++itItem)
   {
-    if (!URIUtils::IsInPath((*itItem)->GetPath(), GetPath()))
-      itItem = items.erase(itItem);
-    else
-      ++itItem;
+    if (URIUtils::IsInPath((*itItem)->GetPath(), GetPath()))
+      itemList.Add(*itItem);
   }
 
-  task->SetItems(items);
+  task->AddItems(itemList, MediaImportChangesetTypeNone);
   return true;
 }
 

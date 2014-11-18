@@ -585,7 +585,9 @@
     <ClCompile Include="..\..\xbmc\media\import\repositories\GenericMediaImportRepository.cpp" />
     <ClCompile Include="..\..\xbmc\media\import\repositories\MusicImportRepository.cpp" />
     <ClCompile Include="..\..\xbmc\media\import\repositories\VideoImportRepository.cpp" />
+    <ClCompile Include="..\..\xbmc\media\import\task\MediaImportChangesetTask.cpp" />
     <ClCompile Include="..\..\xbmc\media\import\task\MediaImportRetrievalTask.cpp" />
+    <ClCompile Include="..\..\xbmc\media\import\task\MediaImportScrapingTask.cpp" />
     <ClCompile Include="..\..\xbmc\media\import\task\MediaImportSourceRegistrationTask.cpp" />
     <ClCompile Include="..\..\xbmc\media\import\task\MediaImportSynchronisationTask.cpp" />
     <ClCompile Include="..\..\xbmc\media\import\task\MediaImportUpdateTask.cpp" />
@@ -975,7 +977,10 @@
     <ClInclude Include="..\..\xbmc\media\import\repositories\GenericMediaImportRepository.h" />
     <ClInclude Include="..\..\xbmc\media\import\repositories\MusicImportRepository.h" />
     <ClInclude Include="..\..\xbmc\media\import\repositories\VideoImportRepository.h" />
+    <ClInclude Include="..\..\xbmc\media\import\task\MediaImportChangesetTask.h" />
+    <ClInclude Include="..\..\xbmc\media\import\task\MediaImportChangesetTypes.h" />
     <ClInclude Include="..\..\xbmc\media\import\task\MediaImportRetrievalTask.h" />
+    <ClInclude Include="..\..\xbmc\media\import\task\MediaImportScrapingTask.h" />
     <ClInclude Include="..\..\xbmc\media\import\task\MediaImportSourceRegistrationTask.h" />
     <ClInclude Include="..\..\xbmc\media\import\task\MediaImportSynchronisationTask.h" />
     <ClInclude Include="..\..\xbmc\media\import\task\MediaImportUpdateTask.h" />

@@ -3176,6 +3176,12 @@
     <ClCompile Include="..\..\xbmc\media\import\handler\ArtistImportHandler.cpp">
       <Filter>media\import\handler</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\media\import\task\MediaImportChangesetTask.cpp">
+      <Filter>media\import\task</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\xbmc\media\import\task\MediaImportScrapingTask.cpp">
+      <Filter>media\import\task</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\xbmc\win32\pch.h">
@@ -6219,6 +6225,15 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\media\import\handler\ArtistImportHandler.h">
       <Filter>media\import\handler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\media\import\task\MediaImportChangesetTask.h">
+      <Filter>media\import\task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\media\import\task\MediaImportScrapingTask.h">
+      <Filter>media\import\task</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\xbmc\media\import\task\MediaImportChangesetTypes.h">
+      <Filter>media\import</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

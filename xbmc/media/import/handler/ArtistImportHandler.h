@@ -33,10 +33,16 @@ public:
   virtual std::set<MediaType> GetRequiredMediaTypes() const;
   virtual std::vector<MediaType> GetGroupedMediaTypes() const;
 
+  virtual bool AddImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool UpdateImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool RemoveImportedItem(const CMediaImport &import, const CFileItem* item);
+
   void SetImportedItemsEnabled(const CMediaImport &import, bool enable) { }
 
 protected:
-  virtual bool HandleImportedItems(CMusicDatabase &musicdb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual bool GetLocalItems(CMusicDatabase &musicdb, const CMediaImport &import, CFileItemList& items);
 
-  void UpdateArtist(const CFileItem &artistItem, CMusicDatabase &musicdb);
+  virtual CFileItemPtr FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems);
+
+  bool UpdateArtist(const CFileItem &artistItem);
 };

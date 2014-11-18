@@ -20,16 +20,12 @@
 
 #include "TvShowImportHandler.h"
 #include "FileItem.h"
-#include "dialogs/GUIDialogExtendedProgressBar.h"
-#include "media/import/IMediaImportTask.h"
-#include "utils/StringUtils.h"
 #include "video/VideoDatabase.h"
-#include "video/VideoThumbLoader.h"
 
 /*!
  * Checks whether two tvshows are the same by comparing them by title and year
  */
-static bool IsSameTVShow(CVideoInfoTag& left, CVideoInfoTag& right)
+static bool IsSameTVShow(const CVideoInfoTag& left, const CVideoInfoTag& right)
 {
   return left.m_strShowTitle == right.m_strShowTitle
       && left.m_iYear        == right.m_iYear;
@@ -51,107 +47,63 @@ std::vector<MediaType> CTvShowImportHandler::GetGroupedMediaTypes() const
   return types;
 }
 
-bool CTvShowImportHandler::HandleImportedItems(CVideoDatabase &videodb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
+bool CTvShowImportHandler::AddImportedItem(const CMediaImport &import, CFileItem* item)
 {
-  bool checkCancelled = task != NULL;
-  if (checkCancelled && task->ShouldCancel(0, items.Size()))
-    return false;
-  
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeTvShow).c_str(), import.GetSource().GetFriendlyName().c_str()));
-  task->SetProgressText("");
-
-  const CMediaImportSettings &importSettings = import.GetSettings();
-  CFileItemList storedItems;
-  videodb.GetTvShowsByWhere("videodb://tvshows/titles/", GetFilter(import), storedItems, SortDescription(), importSettings.UpdateImportedMediaItems());
-  
-  int total = storedItems.Size() + items.Size();
-  if (checkCancelled && task->ShouldCancel(0, total))
+  if (item == NULL)
     return false;
 
-  CVideoThumbLoader thumbLoader;
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderStart();
-  
-  int progress = 0;
-  CFileItemList newItems; newItems.Copy(items);
-  for (int i = 0; i < storedItems.Size(); i++)
-  {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
+  PrepareItem(import, item);
 
-    CFileItemPtr oldItem = storedItems[i];
-    bool found = false;
-    for (int j = 0; j < newItems.Size() ; j++)
-    {
-      if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-        return false;
+  std::vector< std::pair<std::string, std::string> > tvshowPaths;
+  tvshowPaths.push_back(std::make_pair(item->GetPath(),item->GetVideoInfoTag()->m_basePath));
+  std::map<int, std::map<std::string, std::string> > seasonArt;
+  item->GetVideoInfoTag()->m_iDbId = m_db.SetDetailsForTvShow(tvshowPaths, *(item->GetVideoInfoTag()), item->GetArt(), seasonArt);
+  if (item->GetVideoInfoTag()->m_iDbId <= 0)
+    return false;
 
-      CFileItemPtr newItem = newItems[j];
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
+  return SetImportForItem(item, import);
+}
 
-      if (IsSameTVShow(*oldItem->GetVideoInfoTag(), *newItem->GetVideoInfoTag()))
-      {
-        // get rid of items we already have from the new items list
-        newItems.Remove(j);
-        total--;
-        found = true;
+bool CTvShowImportHandler::UpdateImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL || !item->HasVideoInfoTag() || item->GetVideoInfoTag()->m_iDbId <= 0)
+    return false;
 
-        if (importSettings.UpdateImportedMediaItems())
-          thumbLoader.LoadItem(oldItem.get());
-        
-        // check if we need to update (db writing is expensive)
-        // but only if synchronisation is enabled
-        if (importSettings.UpdateImportedMediaItems() &&
-            !Compare(oldItem.get(), newItem.get(), true, false))
-        {
-          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), newItem->GetVideoInfoTag()->m_strTitle.c_str()));
+  std::vector< std::pair<std::string, std::string> > tvshowPaths;
+  tvshowPaths.push_back(std::make_pair(item->GetPath(), item->GetVideoInfoTag()->m_basePath));
+  std::map<int, std::map<std::string, std::string> > seasonArt;
+  return m_db.SetDetailsForTvShow(tvshowPaths, *(item->GetVideoInfoTag()), item->GetArt(), seasonArt, item->GetVideoInfoTag()->m_iDbId) > 0;
+}
 
-          PrepareExistingItem(newItem.get(), oldItem.get());
+bool CTvShowImportHandler::RemoveImportedItem(const CMediaImport &import, const CFileItem* item)
+{
+  if (item == NULL || !item->HasVideoInfoTag())
+    return false;
 
-          std::vector< std::pair<std::string, std::string> > tvshowPaths;
-          tvshowPaths.push_back(std::make_pair(newItem->GetPath(), newItem->GetVideoInfoTag()->m_basePath));
-          std::map<int, std::map<std::string, std::string> > seasonArt;
-          videodb.SetDetailsForTvShow(tvshowPaths, *(newItem->GetVideoInfoTag()), newItem->GetArt(), seasonArt, newItem->GetVideoInfoTag()->m_iDbId);
-        }
-        break;
-      }
-    }
-
-    /* TODO: delete items that are not in newItems
-     * what if the same tvshow exists with some local items
-     * or items from a different source???
-    if (!found)
-    {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), oldItem->GetVideoInfoTag()->m_strTitle.c_str()));
-      videodb.DeleteTvShow(oldItem->GetVideoInfoTag()->m_iDbId);
-    }
-    */
-
-    task->SetProgress(progress++, total);
-  }
-
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderFinish();
-  
-  // add any (remaining) new items
-  for (int i = 0; i < newItems.Size(); i++)
-  {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
-
-    CFileItemPtr pItem = newItems[i];
-    PrepareItem(import, pItem.get(), videodb);
-
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), pItem->GetVideoInfoTag()->m_strTitle.c_str()));
-
-    std::vector< std::pair<std::string, std::string> > tvshowPaths;
-    tvshowPaths.push_back(std::make_pair(pItem->GetPath(), pItem->GetVideoInfoTag()->m_basePath));
-    std::map<int, std::map<std::string, std::string> > seasonArt;
-    pItem->GetVideoInfoTag()->m_iDbId = videodb.SetDetailsForTvShow(tvshowPaths, *(pItem->GetVideoInfoTag()), pItem->GetArt(), seasonArt);
-    SetImportForItem(pItem.get(), import, videodb);
-
-    task->SetProgress(progress++, total);
-  }
-
+  /* TODO: what if there are local episodes for the same tvshow?
+  m_db.DeleteTvShow(item->GetVideoInfoTag()->m_iDbId);
+  */
   return true;
+}
+
+bool CTvShowImportHandler::GetLocalItems(CVideoDatabase &videodb, const CMediaImport &import, CFileItemList& items)
+{
+  return videodb.GetTvShowsByWhere("videodb://tvshows/titles/", GetFilter(import), items, SortDescription(), import.GetSettings().UpdateImportedMediaItems());
+}
+
+CFileItemPtr CTvShowImportHandler::FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems)
+{
+  for (int i = 0; i < localItems.Size(); ++i)
+  {
+    CFileItemPtr localItem = localItems.Get(i);
+    if (IsSameTVShow(*item->GetVideoInfoTag(), *localItem->GetVideoInfoTag()))
+      return localItem;
+  }
+
+  return CFileItemPtr();
+}
+
+MediaImportChangesetType CTvShowImportHandler::DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemPtr localItem, CFileItemList& localItems, bool updatePlaybackMetadata)
+{
+  return CVideoImportHandler::DetermineChangeset(import, item, localItem, localItems, false);
 }

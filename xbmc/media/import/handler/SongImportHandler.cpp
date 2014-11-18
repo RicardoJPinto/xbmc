@@ -20,47 +20,9 @@
 
 #include "SongImportHandler.h"
 #include "FileItem.h"
-#include "dialogs/GUIDialogExtendedProgressBar.h"
 #include "media/import/IMediaImportTask.h"
-#include "music/MusicDatabase.h"
-#include "music/MusicThumbLoader.h"
 #include "settings/AdvancedSettings.h"
 #include "utils/StringUtils.h"
-
-typedef std::set<CFileItemPtr> AlbumSet;
-typedef std::map<std::string, AlbumSet> AlbumMap;
-
-/*!
- * Tries to find the album from the given map to which the given song belongs
- */
-static int FindAlbum(const AlbumMap &albumMap, CFileItemPtr songItem)
-{
-  if (songItem == NULL)
-    return -1;
-
-  // no comparison possible without a title
-  if (songItem->GetMusicInfoTag()->GetAlbum().empty())
-    return -1;
-
-  // check if there is an album with a matching title
-  AlbumMap::const_iterator albumIter = albumMap.find(songItem->GetMusicInfoTag()->GetAlbum());
-  if (albumIter == albumMap.end() ||
-      albumIter->second.size() <= 0)
-    return -1;
-
-  // if there is only one matching album, we can go with that one
-  if (albumIter->second.size() == 1)
-    return albumIter->second.begin()->get()->GetMusicInfoTag()->GetDatabaseId();
-
-  // use the artist of the song and album to find the right album
-  for (AlbumSet::const_iterator it = albumIter->second.begin(); it != albumIter->second.end(); ++it)
-  {
-    if (songItem->GetMusicInfoTag()->GetAlbumArtist() == (*it)->GetMusicInfoTag()->GetAlbumArtist()) // TODO: does this work???
-      return (*it)->GetMusicInfoTag()->GetDatabaseId();
-  }
-
-  return -1;
-}
 
 std::set<MediaType> CSongImportHandler::GetDependencies() const
 {
@@ -79,181 +41,191 @@ std::vector<MediaType> CSongImportHandler::GetGroupedMediaTypes() const
   return types;
 }
 
-bool CSongImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
+std::string CSongImportHandler::GetItemLabel(const CFileItem* item) const
 {
-  bool checkCancelled = task != NULL;
-  if (checkCancelled && task->ShouldCancel(0, items.Size()))
-    return false;
-
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeSong).c_str(), import.GetSource().GetFriendlyName().c_str()));
-  task->SetProgressText("");
-
-  CFileItemList storedItems;
-  musicdb.GetSongsByWhere("musicdb://songs/", GetFilter(import), storedItems);
-  
-  int total = storedItems.Size() + items.Size();
-  if (checkCancelled && task->ShouldCancel(0, total))
-    return false;
-
-  const CMediaImportSettings &importSettings = import.GetSettings();
-  CMusicThumbLoader thumbLoader;
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderStart();
-
-  int progress = 0;
-  CFileItemList newItems; newItems.Copy(items);
-  for (int i = 0; i < storedItems.Size(); i++)
+  if (item != NULL && item->HasMusicInfoTag() && !item->GetMusicInfoTag()->GetTitle().empty())
   {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
-
-    CFileItemPtr oldItem = storedItems[i];
-    CFileItemPtr pItem = newItems.Get(oldItem->GetMusicInfoTag()->GetURL());
-
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
-                                              oldItem->GetMusicInfoTag()->GetAlbum().c_str(),
-                                              oldItem->GetMusicInfoTag()->GetTitle().c_str()));
-
-    // delete items that are not in newItems
-    if (pItem == NULL)
-    {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37038).c_str(),
-                                                oldItem->GetMusicInfoTag()->GetAlbum().c_str(),
-                                                oldItem->GetMusicInfoTag()->GetTitle().c_str()));
-      // TODO: musicdb.DeleteSong(oldItem->GetMusicInfoTag()->GetDatabaseId());
-    }
-    // item is in both lists
-    else
-    {
-      // get rid of items we already have from the new items list
-      newItems.Remove(pItem.get());
-      total--;
-
-      // only process the item with the thumb loader if updates to artwork etc. are allowed
-      if (importSettings.UpdateImportedMediaItems())
-        thumbLoader.LoadItem(oldItem.get());
-
-      // check if we need to update (db writing is expensive)
-      // but only if synchronisation is enabled
-      if (importSettings.UpdateImportedMediaItems() &&
-          !Compare(oldItem.get(), pItem.get()))
-      {
-        task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37039).c_str(),
-                                                  pItem->GetMusicInfoTag()->GetAlbum().c_str(),
-                                                  pItem->GetMusicInfoTag()->GetTitle().c_str()));
-
-        PrepareExistingItem(pItem.get(), oldItem.get());
-
-        CSong song(*pItem);
-        musicdb.UpdateSong(pItem->GetMusicInfoTag()->GetDatabaseId(), song);
-        if (importSettings.UpdatePlaybackMetadataFromSource())
-          SetDetailsForFile(pItem.get(), musicdb);
-      }
-    }
-
-    task->SetProgress(progress++, total);
+    return StringUtils::Format(g_localizeStrings.Get(37037).c_str(),
+      item->GetMusicInfoTag()->GetAlbum().c_str(),
+      item->GetMusicInfoTag()->GetTitle().c_str());
   }
 
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderFinish();
+  return CMusicImportHandler::GetItemLabel(item);
+}
 
-  if (newItems.Size() <= 0)
-    return true;
+bool CSongImportHandler::StartSynchronisation(const CMediaImport &import)
+{
+  if (!CMusicImportHandler::StartSynchronisation(import))
+    return false;
 
   // create a map of artists and albums imported from the same source
   CFileItemList albums;
-  musicdb.GetAlbumsByWhere("musicdb://albums/", CDatabase::Filter(), albums);
+  if (!m_db.GetAlbumsByWhere("musicdb://albums/", CDatabase::Filter(), albums))
+    return false;
 
-  AlbumMap albumsMap;
+  m_albums.clear();
+
   AlbumMap::iterator albumIter;
   for (int albumIndex = 0; albumIndex < albums.Size(); albumIndex++)
   {
-    CFileItemPtr album = albums[albumIndex];
-
+    CFileItemPtr album = albums.Get(albumIndex);
     if (!album->HasMusicInfoTag() || album->GetMusicInfoTag()->GetTitle().empty())
       continue;
 
-    albumIter = albumsMap.find(album->GetMusicInfoTag()->GetTitle());
-    if (albumIter == albumsMap.end())
+    albumIter = m_albums.find(album->GetMusicInfoTag()->GetTitle());
+    if (albumIter == m_albums.end())
     {
       AlbumSet albumsSet; albumsSet.insert(album);
-      albumsMap.insert(make_pair(album->GetMusicInfoTag()->GetTitle(), albumsSet));
+      m_albums.insert(make_pair(album->GetMusicInfoTag()->GetTitle(), albumsSet));
     }
     else
       albumIter->second.insert(album);
   }
 
-  // add any (remaining) new items
-  for (int i = 0; i < newItems.Size(); i++)
+  return true;
+}
+
+bool CSongImportHandler::AddImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL)
+    return false;
+
+  MUSIC_INFO::CMusicInfoTag *song = item->GetMusicInfoTag();
+  PrepareItem(import, item);
+
+  // try to find an existing album that the song belongs to
+  int albumId = FindAlbumId(item);
+
+  // if the album doesn't exist, create a very basic version of it with the info we got from the song
+  if (albumId <= 0)
   {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
+    CAlbum album;
+    album.art = item->GetArt();
+    album.artist = song->GetArtist();
+    album.bCompilation = false;
+    album.enabled = true;
+    album.genre = song->GetGenre();
+    album.iRating = song->GetRating();
+    album.iYear = song->GetYear();
+    album.strAlbum = song->GetAlbum();
+    album.strMusicBrainzAlbumID = song->GetMusicBrainzAlbumID();
+
+    // add the basic album to the database
+    if (!m_db.AddAlbum(album))
       return false;
 
-    CFileItemPtr pItem = newItems[i];
-    MUSIC_INFO::CMusicInfoTag *song = pItem->GetMusicInfoTag();
-    PrepareItem(import, pItem.get(), musicdb);
+    albumId = album.idAlbum;
 
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37040).c_str(),
-                                              song->GetAlbum().c_str(),
-                                              song->GetTitle().c_str()));
-    
-    int albumId = FindAlbum(albumsMap, pItem);
-    // if the album doesn't exist, create a very basic version of it with the info we got from the song
-    if (albumId <= 0)
+    // turn the album into a CFileItem
+    CFileItemPtr albumItem(new CFileItem(album.strAlbum));
+    albumItem->SetFromAlbum(album);
+
+    // copy any artwork from the song
+    albumItem->SetArt(item->GetArt());
+
+    // set the source and import paths
+    albumItem->SetSource(item->GetSource());
+    albumItem->SetImportPath(item->GetImportPath());
+
+    // set the import on the album
+    SetImportForItem(albumItem.get(), import);
+
+    // add the album to the album map
+    AlbumMap::iterator albumIter = m_albums.find(song->GetAlbum());
+    if (albumIter == m_albums.end())
     {
-      CAlbum album;
-      album.art = pItem->GetArt();
-      album.artist = song->GetArtist();
-      album.bCompilation = false;
-      album.enabled = true;
-      album.genre = song->GetGenre();
-      album.iRating = song->GetRating();
-      album.iYear = song->GetYear();
-      album.strAlbum = song->GetAlbum();
-      album.strMusicBrainzAlbumID = song->GetMusicBrainzAlbumID();
-
-      // add the basic album to the database
-      if (!musicdb.AddAlbum(album))
-        continue;
-
-      albumId = album.idAlbum;
-
-      // turn the album into a CFileItem
-      CFileItemPtr albumItem(new CFileItem(album.strAlbum));
-      albumItem->SetFromAlbum(album);
-      // copy any artwork from the song
-      albumItem->SetArt(pItem->GetArt());
-      // set the source and import paths
-      albumItem->SetSource(pItem->GetSource());
-      albumItem->SetImportPath(pItem->GetImportPath());
-      // set the import on the album
-      SetImportForItem(albumItem.get(), import, musicdb);
-      
-      // add the album to the album map
-      albumIter = albumsMap.find(song->GetAlbum());
-      if (albumIter == albumsMap.end())
-      {
-        AlbumSet albumSet; albumSet.insert(albumItem);
-        albumsMap.insert(make_pair(song->GetAlbum(), albumSet));
-      }
-      else
-        albumIter->second.insert(albumItem);
+      AlbumSet albumSet; albumSet.insert(albumItem);
+      m_albums.insert(make_pair(song->GetAlbum(), albumSet));
     }
-
-    musicdb.AddSong(albumId, song->GetTitle(), 
-      song->GetMusicBrainzTrackID(),
-      pItem->GetPath(), song->GetComment(),
-      pItem->GetUserMusicThumb(true), StringUtils::Join(song->GetArtist(), g_advancedSettings.m_musicItemSeparator), // TODO: artist string
-      song->GetGenre(), song->GetTrackNumber(),
-      song->GetDuration(), song->GetYear(),
-      song->GetPlayCount(), pItem->m_lStartOffset,
-      pItem->m_lEndOffset, song->GetLastPlayed(),
-      song->GetRating(), 0);
-    SetDetailsForFile(pItem.get(), musicdb);
-    SetImportForItem(pItem.get(), import, musicdb);
-
-    task->SetProgress(progress++, total);
+    else
+      albumIter->second.insert(albumItem);
   }
 
+  song->SetDatabaseId(m_db.AddSong(albumId, song->GetTitle(),
+    song->GetMusicBrainzTrackID(),
+    item->GetPath(), song->GetComment(),
+    item->GetUserMusicThumb(true), StringUtils::Join(song->GetArtist(), g_advancedSettings.m_musicItemSeparator), // TODO: artist string
+    song->GetGenre(), song->GetTrackNumber(),
+    song->GetDuration(), song->GetYear(),
+    song->GetPlayCount(), item->m_lStartOffset,
+    item->m_lEndOffset, song->GetLastPlayed(),
+    song->GetRating(), 0), MediaTypeSong);
+  if (song->GetDatabaseId() <= 0)
+    return false;
+
+  SetDetailsForFile(item);
+  return SetImportForItem(item, import);
+}
+
+bool CSongImportHandler::UpdateImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL || !item->HasMusicInfoTag())
+    return false;
+
+  CSong song(*item);
+  m_db.UpdateSong(item->GetMusicInfoTag()->GetDatabaseId(), song);
+
+  if (import.GetSettings().UpdatePlaybackMetadataFromSource())
+    SetDetailsForFile(item);
+
   return true;
+}
+
+bool CSongImportHandler::RemoveImportedItem(const CMediaImport &import, const CFileItem* item)
+{
+  if (item == NULL || !item->HasMusicInfoTag() || item->GetMusicInfoTag()->GetDatabaseId() <= 0)
+    return false;
+
+  // TODO
+
+  return false;
+}
+
+bool CSongImportHandler::GetLocalItems(CMusicDatabase &musicdb, const CMediaImport &import, CFileItemList& items)
+{
+  return musicdb.GetSongsByWhere("musicdb://songs/", GetFilter(import), items);
+}
+
+CFileItemPtr CSongImportHandler::FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems)
+{
+  for (int i = 0; i < localItems.Size(); ++i)
+  {
+    CFileItemPtr localItem = localItems.Get(i);
+    if (!localItem->HasMusicInfoTag())
+      continue;
+
+    if (localItem->GetMusicInfoTag()->GetURL() == item->GetMusicInfoTag()->GetURL())
+      return localItem;
+  }
+
+  return CFileItemPtr();
+}
+
+int CSongImportHandler::FindAlbumId(const CFileItem* songItem)
+{
+  if (songItem == NULL)
+    return -1;
+
+  // no comparison possible without a title
+  if (songItem->GetMusicInfoTag()->GetAlbum().empty())
+    return -1;
+
+  // check if there is an album with a matching title
+  AlbumMap::const_iterator albumIter = m_albums.find(songItem->GetMusicInfoTag()->GetAlbum());
+  if (albumIter == m_albums.end() ||
+    albumIter->second.size() <= 0)
+    return -1;
+
+  // if there is only one matching album, we can go with that one
+  if (albumIter->second.size() == 1)
+    return albumIter->second.begin()->get()->GetMusicInfoTag()->GetDatabaseId();
+
+  // use the artist of the song and album to find the right album
+  for (AlbumSet::const_iterator it = albumIter->second.begin(); it != albumIter->second.end(); ++it)
+  {
+    if (songItem->GetMusicInfoTag()->GetAlbumArtist() == (*it)->GetMusicInfoTag()->GetAlbumArtist()) // TODO: does this work???
+      return (*it)->GetMusicInfoTag()->GetDatabaseId();
+  }
+
+  return -1;
 }

@@ -19,31 +19,47 @@
  *
  */
 
-#include "media/import/IMediaImportHandler.h"
 #include "dbwrappers/Database.h"
+#include "media/import/IMediaImportHandler.h"
+#include "video/VideoDatabase.h"
+#include "video/VideoThumbLoader.h"
 
 class CFileItem;
-class CVideoDatabase;
 
 class CVideoImportHandler : public IMediaImportHandler
 {
 public:
   virtual ~CVideoImportHandler() { }
 
-  virtual void HandleImportedItems(const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual std::string GetItemLabel(const CFileItem* item) const;
+
+  virtual bool GetLocalItems(const CMediaImport &import, CFileItemList& items);
+
+  virtual bool StartChangeset(const CMediaImport &import);
+  virtual bool FinishChangeset(const CMediaImport &import);
+  virtual MediaImportChangesetType DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemList& localItems);
+
+  virtual bool StartSynchronisation(const CMediaImport &import);
+  virtual bool FinishSynchronisation(const CMediaImport &import);
 
   virtual void SetImportedItemsEnabled(const CMediaImport &import, bool enable);
 
 protected:
   CVideoImportHandler() { }
 
-  virtual bool HandleImportedItems(CVideoDatabase &videodb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task) = 0;
+  virtual bool GetLocalItems(CVideoDatabase &videodb, const CMediaImport &import, CFileItemList& items) = 0;
 
-  void PrepareItem(const CMediaImport &import, CFileItem* pItem, CVideoDatabase &videodb);
+  virtual CFileItemPtr FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems);
+  virtual MediaImportChangesetType DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemPtr localItem, CFileItemList& localItems, bool updatePlaybackMetadata);
+
+  void PrepareItem(const CMediaImport &import, CFileItem* pItem);
   void PrepareExistingItem(CFileItem *updatedItem, const CFileItem *originalItem);
-  void SetDetailsForFile(const CFileItem *pItem, bool reset, CVideoDatabase &videodb);
-  bool SetImportForItem(const CFileItem *pItem, const CMediaImport &import, CVideoDatabase &videodb);
+  void SetDetailsForFile(const CFileItem *pItem, bool reset);
+  bool SetImportForItem(const CFileItem *pItem, const CMediaImport &import);
 
   static CDatabase::Filter GetFilter(const CMediaImport &import, bool enabledItems = false);
   static bool Compare(const CFileItem *originalItem, const CFileItem *newItem, bool allMetadata = true, bool playbackMetadata = true);
+
+  CVideoDatabase m_db;
+  CVideoThumbLoader m_thumbLoader;
 };

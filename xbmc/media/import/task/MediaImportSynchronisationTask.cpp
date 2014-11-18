@@ -24,7 +24,7 @@
 #include "utils/log.h"
 #include "utils/StringUtils.h"
 
-CMediaImportSynchronisationTask::CMediaImportSynchronisationTask(const CMediaImport &import, IMediaImportHandler *importHandler, const CFileItemList &items)
+CMediaImportSynchronisationTask::CMediaImportSynchronisationTask(const CMediaImport &import, IMediaImportHandler *importHandler, const ChangesetItems &items)
   : IMediaImportTask(import),
     m_importHandler(importHandler),
     m_items(items)
@@ -40,18 +40,73 @@ bool CMediaImportSynchronisationTask::DoWork()
   if (m_importHandler == NULL)
     return false;
 
-  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37042).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
+  if (!m_importHandler->StartSynchronisation(m_import))
+  {
+    CLog::Log(LOGINFO, "CMediaImportSynchronisationTask: failed to initialize synchronisation of imported %s items from %s",
+      m_importHandler->GetMediaType().c_str(), m_import.GetSource().GetIdentifier().c_str());
+    return false;
+  }
 
-  if (ShouldCancel(0, (unsigned int)m_items.Size()))
+  // prepare the progress bar
+  GetProgressBarHandle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(),
+    MediaTypes::GetPluralLocalization(m_import.GetMediaType()).c_str(), m_import.GetSource().GetFriendlyName().c_str()));
+  SetProgressText("");
+
+  if (ShouldCancel(0, m_items.size()))
     return false;
 
   CLog::Log(LOGINFO, "CMediaImportSynchronisationTask: handling %d imported %s items from %s",
-    m_items.Size(), m_importHandler->GetMediaType().c_str(), m_import.GetSource().GetIdentifier().c_str());
+    static_cast<int>(m_items.size()), m_importHandler->GetMediaType().c_str(), m_import.GetSource().GetIdentifier().c_str());
   // handle the imported items of a specific media type
-  m_importHandler->HandleImportedItems(m_import, m_items, this);
+  size_t total = m_items.size();
+  size_t progress = 0;
+  for (ChangesetItems::const_iterator item = m_items.begin(); item != m_items.end(); ++item)
+  {
+    // check if we should cancel
+    if (ShouldCancel(progress, total))
+      return false;
+
+    // get the item label to be used in the progress bar text
+    std::string itemLabel = m_importHandler->GetItemLabel(item->second.get());
+    SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), itemLabel.c_str()));
+
+    // process the item depending on its changeset state
+    switch (item->first)
+    {
+      case MediaImportChangesetTypeAdded:
+        SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), itemLabel.c_str()));
+        m_importHandler->AddImportedItem(m_import, item->second.get());
+        break;
+
+      case MediaImportChangesetTypeChanged:
+        SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), itemLabel.c_str()));
+        m_importHandler->UpdateImportedItem(m_import, item->second.get());
+        break;
+
+      case MediaImportChangesetTypeRemoved:
+        SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), itemLabel.c_str()));
+        m_importHandler->RemoveImportedItem(m_import, item->second.get());
+        break;
+
+      case MediaImportChangesetTypeNone:
+      default:
+        CLog::Log(LOGWARNING, "CMediaImportSynchronisationTask: ignoring imported item with unknown changeset type %d", item->first);
+        break;
+    }
+
+    ++progress;
+    SetProgress(progress, total);
+  }
 
   // now make sure the items are enabled
   m_importHandler->SetImportedItemsEnabled(m_import, true);
+
+  if (!m_importHandler->FinishSynchronisation(m_import))
+  {
+    CLog::Log(LOGINFO, "CMediaImportSynchronisationTask: failed to finalize synchronisation of imported %s items from %s",
+      m_importHandler->GetMediaType().c_str(), m_import.GetSource().GetIdentifier().c_str());
+    return false;
+  }
 
   return true;
 }

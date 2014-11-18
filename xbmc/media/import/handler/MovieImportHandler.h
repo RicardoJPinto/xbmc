@@ -31,6 +31,10 @@ public:
 
   virtual MediaType GetMediaType() const { return MediaTypeMovie; }
 
+  virtual bool AddImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool UpdateImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool RemoveImportedItem(const CMediaImport &import, const CFileItem* item);
+
 protected:
-  virtual bool HandleImportedItems(CVideoDatabase &videodb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual bool GetLocalItems(CVideoDatabase &videodb, const CMediaImport &import, CFileItemList& items);
 };

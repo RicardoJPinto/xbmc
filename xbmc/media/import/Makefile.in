@@ -14,8 +14,10 @@ SRCS= MediaImport.cpp \
       repositories/GenericMediaImportRepository.cpp \
       repositories/MusicImportRepository.cpp \
       repositories/VideoImportRepository.cpp \
+      task/MediaImportChangesetTask.cpp \
       task/MediaImportRetrievalTask.cpp \
       task/MediaImportSourceRegistrationTask.cpp \
+      task/MediaImportScrapingTask.cpp \
       task/MediaImportSynchronisationTask.cpp \
       task/MediaImportUpdateTask.cpp \
       windows/GUIViewStateMediaSourceBrowser.cpp \

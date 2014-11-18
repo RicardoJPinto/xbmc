@@ -21,46 +21,142 @@
 #include "VideoImportHandler.h"
 #include "FileItem.h"
 #include "media/import/IMediaImportTask.h"
+#include "utils/log.h"
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "video/VideoDatabase.h"
 
+std::string CVideoImportHandler::GetItemLabel(const CFileItem* item) const
+{
+  if (item == NULL)
+    return "";
+
+  if (item->HasVideoInfoTag() && !item->GetVideoInfoTag()->m_strTitle.empty())
+    return item->GetVideoInfoTag()->m_strTitle;
+
+  return item->GetLabel();
+}
+
+bool CVideoImportHandler::GetLocalItems(const CMediaImport &import, CFileItemList& items)
+{
+  if (!m_db.Open())
+    return false;
+
+  bool result = GetLocalItems(m_db, import, items);
+
+  m_db.Close();
+  return result;
+}
+
+bool CVideoImportHandler::StartChangeset(const CMediaImport &import)
+{
+  // start the background loader if necessary
+  if (import.GetSettings().UpdateImportedMediaItems())
+    m_thumbLoader.OnLoaderStart();
+
+  return true;
+}
+
+bool CVideoImportHandler::FinishChangeset(const CMediaImport &import)
+{
+  // stop the background loader if necessary
+  if (import.GetSettings().UpdateImportedMediaItems())
+    m_thumbLoader.OnLoaderFinish();
+
+  return true;
+}
+
+MediaImportChangesetType CVideoImportHandler::DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemList& localItems)
+{
+  if (item == NULL || !item->HasVideoInfoTag())
+    return MediaImportChangesetTypeNone;
+
+  return DetermineChangeset(import, item, FindMatchingLocalItem(item, localItems), localItems, import.GetSettings().UpdatePlaybackMetadataFromSource());
+}
+
+bool CVideoImportHandler::StartSynchronisation(const CMediaImport &import)
+{
+  if (!m_db.Open())
+    return false;
+
+  m_db.BeginTransaction();
+  return true;
+}
+
+bool CVideoImportHandler::FinishSynchronisation(const CMediaImport &import)
+{
+  if (!m_db.IsOpen())
+    return false;
+
+  // now make sure the items are enabled
+  SetImportedItemsEnabled(import, true);
+
+  m_db.CommitTransaction();
+  m_db.Close();
+  return true;
+}
+
 void CVideoImportHandler::SetImportedItemsEnabled(const CMediaImport &import, bool enable)
 {
-  CVideoDatabase videodb;
-  if (!videodb.Open())
+  if (!m_db.Open())
     return;
 
-  videodb.SetImportItemsEnabled(enable, import);
+  m_db.SetImportItemsEnabled(enable, import);
+  m_db.Close();
 }
 
-void CVideoImportHandler::HandleImportedItems(const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
+CFileItemPtr CVideoImportHandler::FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems)
 {
-  if (task != NULL && task->ShouldCancel(0, items.Size()))
-    return;
+  for (int i = 0; i < localItems.Size(); ++i)
+  {
+    CFileItemPtr localItem = localItems.Get(i);
+    if (!localItem->HasVideoInfoTag())
+      continue;
 
-  CVideoDatabase videodb;
-  if (!videodb.Open())
-    return;
+    if (localItem->GetVideoInfoTag()->GetPath() == item->GetVideoInfoTag()->GetPath())
+      return localItem;
+  }
 
-  videodb.BeginTransaction();
-
-  if (!import.GetPath().empty())
-    HandleImportedItems(videodb, import, items, task);
-
-  videodb.CommitTransaction();
-  videodb.Close();
+  return CFileItemPtr();
 }
 
-void CVideoImportHandler::PrepareItem(const CMediaImport &import, CFileItem* pItem, CVideoDatabase &videodb)
+MediaImportChangesetType CVideoImportHandler::DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemPtr localItem, CFileItemList& localItems, bool updatePlaybackMetadata)
+{
+  if (localItem == NULL)
+    return MediaImportChangesetTypeAdded;
+
+  // remove the matching item from the local list so that the imported item is not considered non-existant
+  localItems.Remove(localItem.get());
+
+  const CMediaImportSettings& settings = import.GetSettings();
+
+  // nothing to do if we don't need to update imported media items
+  if (!settings.UpdateImportedMediaItems())
+    return MediaImportChangesetTypeNone;
+
+  // retrieve all details for the previously imported item
+  if (!m_thumbLoader.LoadItem(localItem.get()))
+    CLog::Log(LOGWARNING, "Failed to retrieve details for local item %s during media importing", localItem->GetVideoInfoTag()->GetPath().c_str());
+
+  // compare the previously imported item with the newly imported item
+  if (Compare(localItem.get(), item, settings.UpdateImportedMediaItems(), settings.UpdatePlaybackMetadataFromSource()))
+    return MediaImportChangesetTypeNone;
+
+  // the newly imported item has changed from the previously imported one so get some information from the local item as preparation
+  PrepareExistingItem(item, localItem.get());
+
+  return MediaImportChangesetTypeChanged;
+}
+
+void CVideoImportHandler::PrepareItem(const CMediaImport &import, CFileItem* pItem)
 {
   if (pItem == NULL || !pItem->HasVideoInfoTag() ||
       import.GetPath().empty() || import.GetSource().GetIdentifier().empty())
     return;
 
   const std::string &sourceID = import.GetSource().GetIdentifier();
-  videodb.AddPath(sourceID);
-  int idPath = videodb.AddPath(import.GetPath(), sourceID);
+  m_db.AddPath(sourceID);
+  int idPath = m_db.AddPath(import.GetPath(), sourceID);
 
   // set the proper source
   pItem->SetSource(sourceID);
@@ -90,21 +186,21 @@ void CVideoImportHandler::PrepareExistingItem(CFileItem *updatedItem, const CFil
   // TODO: updatedItem->GetVideoInfoTag()->m_resumePoint = originalItem->GetVideoInfoTag()->m_resumePoint;
 }
 
-void CVideoImportHandler::SetDetailsForFile(const CFileItem *pItem, bool reset, CVideoDatabase &videodb)
+void CVideoImportHandler::SetDetailsForFile(const CFileItem *pItem, bool reset)
 {
   // clean resume bookmark
   if (reset)
-    videodb.DeleteResumeBookMark(pItem->GetPath());
+    m_db.DeleteResumeBookMark(pItem->GetPath());
 
   if (pItem->GetVideoInfoTag()->m_resumePoint.IsPartWay())
-    videodb.AddBookMarkToFile(pItem->GetPath(), pItem->GetVideoInfoTag()->m_resumePoint, CBookmark::RESUME);
+    m_db.AddBookMarkToFile(pItem->GetPath(), pItem->GetVideoInfoTag()->m_resumePoint, CBookmark::RESUME);
 
-  videodb.SetPlayCount(*pItem, pItem->GetVideoInfoTag()->m_playCount, pItem->GetVideoInfoTag()->m_lastPlayed);
+  m_db.SetPlayCount(*pItem, pItem->GetVideoInfoTag()->m_playCount, pItem->GetVideoInfoTag()->m_lastPlayed);
 }
 
-bool CVideoImportHandler::SetImportForItem(const CFileItem *pItem, const CMediaImport &import, CVideoDatabase &videodb)
+bool CVideoImportHandler::SetImportForItem(const CFileItem *pItem, const CMediaImport &import)
 {
-  return videodb.SetImportForItem(pItem->GetVideoInfoTag()->m_iDbId, import);
+  return m_db.SetImportForItem(pItem->GetVideoInfoTag()->m_iDbId, import);
 }
 
 CDatabase::Filter CVideoImportHandler::GetFilter(const CMediaImport &import, bool enabledItems /* = false */)

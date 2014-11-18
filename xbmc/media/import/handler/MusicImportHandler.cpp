@@ -20,9 +20,100 @@
 
 #include "MusicImportHandler.h"
 #include "FileItem.h"
-#include "media/import/IMediaImportTask.h"
 #include "music/MusicDatabase.h"
+#include "utils/log.h"
 #include "utils/StringUtils.h"
+
+std::string CMusicImportHandler::GetItemLabel(const CFileItem* item) const
+{
+  if (item == NULL)
+    return "";
+
+  return item->GetLabel();
+}
+
+bool CMusicImportHandler::GetLocalItems(const CMediaImport &import, CFileItemList& items)
+{
+  if (!m_db.Open())
+    return false;
+
+  bool result = GetLocalItems(m_db, import, items);
+
+  m_db.Close();
+  return result;
+}
+
+bool CMusicImportHandler::StartChangeset(const CMediaImport &import)
+{
+  // start the background loader if necessary
+  if (import.GetSettings().UpdateImportedMediaItems())
+    m_thumbLoader.OnLoaderStart();
+
+  return true;
+}
+
+bool CMusicImportHandler::FinishChangeset(const CMediaImport &import)
+{
+  // stop the background loader if necessary
+  if (import.GetSettings().UpdateImportedMediaItems())
+    m_thumbLoader.OnLoaderFinish();
+
+  return true;
+}
+
+MediaImportChangesetType CMusicImportHandler::DetermineChangeset(const CMediaImport &import, CFileItem* item, CFileItemList& localItems)
+{
+  if (item == NULL || !item->HasMusicInfoTag())
+    return MediaImportChangesetTypeNone;
+
+  CFileItemPtr localItem = FindMatchingLocalItem(item, localItems);
+  if (localItem == NULL)
+    return MediaImportChangesetTypeAdded;
+
+  // remove the matching item from the local list so that the imported item is not considered non-existant
+  localItems.Remove(localItem.get());
+
+  const CMediaImportSettings& settings = import.GetSettings();
+
+  // nothing to do if we don't need to update imported media items
+  if (!settings.UpdateImportedMediaItems())
+    return MediaImportChangesetTypeNone;
+
+  // retrieve all details for the previously imported item
+  if (!m_thumbLoader.LoadItem(localItem.get()))
+    CLog::Log(LOGWARNING, "Failed to retrieve details for local item %s during media importing", localItem->GetMusicInfoTag()->GetURL().c_str());
+
+  // compare the previously imported item with the newly imported item
+  if (Compare(localItem.get(), item))
+    return MediaImportChangesetTypeNone;
+
+  // the newly imported item has changed from the previously imported one so get some information from the local item as preparation
+  PrepareExistingItem(item, localItem.get());
+
+  return MediaImportChangesetTypeChanged;
+}
+
+bool CMusicImportHandler::StartSynchronisation(const CMediaImport &import)
+{
+  if (!m_db.Open())
+    return false;
+
+  m_db.BeginTransaction();
+  return true;
+}
+
+bool CMusicImportHandler::FinishSynchronisation(const CMediaImport &import)
+{
+  if (!m_db.IsOpen())
+    return false;
+
+  // now make sure the items are enabled
+  SetImportedItemsEnabled(import, true);
+
+  m_db.CommitTransaction();
+  m_db.Close();
+  return true;
+}
 
 void CMusicImportHandler::SetImportedItemsEnabled(const CMediaImport &import, bool enable)
 {
@@ -33,33 +124,15 @@ void CMusicImportHandler::SetImportedItemsEnabled(const CMediaImport &import, bo
   musicdb.SetImportItemsEnabled(enable, import);
 }
 
-void CMusicImportHandler::HandleImportedItems(const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
-{
-  if (task != NULL && task->ShouldCancel(0, items.Size()))
-    return;
-
-  CMusicDatabase musicdb;
-  if (!musicdb.Open())
-    return;
-
-  musicdb.BeginTransaction();
-
-  if (!import.GetPath().empty())
-    HandleImportedItems(musicdb, import, items, task);
-
-  musicdb.CommitTransaction();
-  musicdb.Close();
-}
-
-void CMusicImportHandler::PrepareItem(const CMediaImport &import, CFileItem* pItem, CMusicDatabase &musicdb)
+void CMusicImportHandler::PrepareItem(const CMediaImport &import, CFileItem* pItem)
 {
   if (pItem == NULL || !pItem->HasMusicInfoTag() ||
       import.GetPath().empty() || import.GetSource().GetIdentifier().empty())
     return;
 
   const std::string &sourceID = import.GetSource().GetIdentifier();
-  musicdb.AddPath(sourceID);
-  int idPath = musicdb.AddPath(import.GetPath());
+  m_db.AddPath(sourceID);
+  int idPath = m_db.AddPath(import.GetPath());
 
   // set the proper source
   pItem->SetSource(sourceID);
@@ -79,14 +152,14 @@ void CMusicImportHandler::PrepareExistingItem(CFileItem *updatedItem, const CFil
   updatedItem->SetImportPath(originalItem->GetImportPath());
 }
 
-void CMusicImportHandler::SetDetailsForFile(const CFileItem *pItem, CMusicDatabase &musicdb)
+void CMusicImportHandler::SetDetailsForFile(const CFileItem *pItem)
 {
-  musicdb.SetPlayCount(*pItem, pItem->GetMusicInfoTag()->GetPlayCount(), pItem->GetMusicInfoTag()->GetLastPlayed());
+  m_db.SetPlayCount(*pItem, pItem->GetMusicInfoTag()->GetPlayCount(), pItem->GetMusicInfoTag()->GetLastPlayed());
 }
 
-bool CMusicImportHandler::SetImportForItem(const CFileItem *pItem, const CMediaImport &import, CMusicDatabase &musicdb)
+bool CMusicImportHandler::SetImportForItem(const CFileItem *pItem, const CMediaImport &import)
 {
-  return musicdb.SetImportForItem(pItem->GetMusicInfoTag()->GetDatabaseId(), import);
+  return m_db.SetImportForItem(pItem->GetMusicInfoTag()->GetDatabaseId(), import);
 }
 
 CDatabase::Filter CMusicImportHandler::GetFilter(const CMediaImport &import, bool enabledItems /* = false */)

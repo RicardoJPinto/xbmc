@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2013 Team XBMC
+ *      Copyright (C) 2014 Team XBMC
  *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -25,19 +25,19 @@
 #include "media/import/MediaImportChangesetTypes.h"
 
 class CGUIDialogProgressBarHandle;
-class IMediaImportHandler;
 
-class CMediaImportSynchronisationTask : public IMediaImportTask
+class CMediaImportScrapingTask : public IMediaImportTask
 {
 public:
-  CMediaImportSynchronisationTask(const CMediaImport &import, IMediaImportHandler *importHandler, const ChangesetItems &items);
-  virtual ~CMediaImportSynchronisationTask();
+  CMediaImportScrapingTask(const CMediaImport &import, const ChangesetItems &items);
+  virtual ~CMediaImportScrapingTask();
+
+  const ChangesetItems& GetItems() const { return m_items; }
 
   // implementation of IMediaImportTask
   virtual bool DoWork();
-  virtual const char *GetType() const { return "MediaImportSynchronisationTask"; }
+  virtual const char *GetType() const { return "MediaImportScrapingTask"; }
 
 protected:
-  IMediaImportHandler *m_importHandler;
   ChangesetItems m_items;
 };

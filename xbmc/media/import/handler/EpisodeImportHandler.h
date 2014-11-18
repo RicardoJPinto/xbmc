@@ -19,6 +19,10 @@
  *
  */
 
+#include <map>
+#include <set>
+#include <string>
+
 #include "media/import/handler/VideoImportHandler.h"
 
 class CEpisodeImportHandler : public CVideoImportHandler
@@ -33,6 +37,22 @@ public:
   virtual std::set<MediaType> GetDependencies() const;
   virtual std::vector<MediaType> GetGroupedMediaTypes() const;
 
+  virtual std::string GetItemLabel(const CFileItem* item) const;
+
+  virtual bool StartSynchronisation(const CMediaImport &import);
+
+  virtual bool AddImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool UpdateImportedItem(const CMediaImport &import, CFileItem* item);
+  virtual bool RemoveImportedItem(const CMediaImport &import, const CFileItem* item);
+
 protected:
-  virtual bool HandleImportedItems(CVideoDatabase &videodb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task);
+  virtual bool GetLocalItems(CVideoDatabase &videodb, const CMediaImport &import, CFileItemList& items);
+
+private:
+  int FindTvShowId(const CFileItem* episodeItem);
+
+  typedef std::set<CFileItemPtr> TvShowsSet;
+  typedef std::map<std::string, TvShowsSet> TvShowsMap;
+
+  TvShowsMap m_tvshows;
 };

@@ -20,10 +20,6 @@
 
 #include "ArtistImportHandler.h"
 #include "FileItem.h"
-#include "dialogs/GUIDialogExtendedProgressBar.h"
-#include "media/import/IMediaImportTask.h"
-#include "music/MusicDatabase.h"
-#include "music/MusicThumbLoader.h"
 #include "settings/AdvancedSettings.h"
 #include "utils/StringUtils.h"
 
@@ -43,117 +39,66 @@ std::vector<MediaType> CArtistImportHandler::GetGroupedMediaTypes() const
   return types;
 }
 
-bool CArtistImportHandler::HandleImportedItems(CMusicDatabase &musicdb, const CMediaImport &import, const CFileItemList &items, IMediaImportTask *task)
+bool CArtistImportHandler::AddImportedItem(const CMediaImport &import, CFileItem* item)
 {
-  bool checkCancelled = task != NULL;
-  if (checkCancelled && task->ShouldCancel(0, items.Size()))
+  if (item == NULL)
     return false;
 
-  task->SetProgressTitle(StringUtils::Format(g_localizeStrings.Get(37032).c_str(), MediaTypes::GetPluralLocalization(MediaTypeArtist).c_str(), import.GetSource().GetFriendlyName().c_str()));
-  task->SetProgressText("");
-  
-  CFileItemList storedItems;
-  musicdb.GetArtistsByWhere("musicdb://artists/", GetFilter(import), storedItems);
-  
-  int total = storedItems.Size() + items.Size();
-  if (checkCancelled && task->ShouldCancel(0, total))
+  PrepareItem(import, item);
+
+  std::string mbArtistId;
+  if (!item->GetMusicInfoTag()->GetMusicBrainzArtistID().empty())
+    mbArtistId = item->GetMusicInfoTag()->GetMusicBrainzArtistID().at(0);
+
+  item->GetMusicInfoTag()->SetDatabaseId(m_db.AddArtist(item->GetLabel(), mbArtistId), MediaTypeArtist);
+  if (item->GetMusicInfoTag()->GetDatabaseId() <= 0)
     return false;
 
-  CMusicThumbLoader thumbLoader;
-  const CMediaImportSettings &importSettings = import.GetSettings();
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderStart();
-  
-  int progress = 0;
-  CFileItemList newItems; newItems.Copy(items);
-  for (int i = 0; i < storedItems.Size(); i++)
-  {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
+  if (!UpdateArtist(*item))
+    return false;
 
-    CFileItemPtr oldItem = storedItems[i];
-    bool found = false;
-    for (int j = 0; j < newItems.Size() ; j++)
-    {
-      if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-        return false;
-
-      CFileItemPtr newItem = newItems[j];
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37033).c_str(), oldItem->GetLabel().c_str()));
-
-      if (oldItem->GetLabel() == newItem->GetLabel())
-      {
-        // get rid of items we already have from the new items list
-        newItems.Remove(j);
-        total--;
-        found = true;
-
-        if (importSettings.UpdateImportedMediaItems())
-          thumbLoader.LoadItem(oldItem.get());
-
-        // check if we need to update (db writing is expensive)
-        // but only if synchronisation is enabled
-        if (importSettings.UpdateImportedMediaItems() &&
-            !Compare(oldItem.get(), newItem.get()))
-        {
-          task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37035).c_str(), newItem->GetLabel().c_str()));
-
-          PrepareExistingItem(newItem.get(), oldItem.get());
-          UpdateArtist(*newItem, musicdb);
-        }
-
-        break;
-      }
-    }
-
-    /* TODO: delete items that are not in newItems
-     * what if the same artist exists with some local items
-     * or items from a different source???
-    if (!found)
-    {
-      task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37034).c_str(), oldItem->GetLabel().c_str()));
-      // TODO: musicdb.DeleteArtist(oldItem->GetMusicInfoTag()->GetDatabaseId());
-    }
-    */
-
-    task->SetProgress(progress++, total);
-  }
-
-  if (importSettings.UpdateImportedMediaItems())
-    thumbLoader.OnLoaderFinish();
-  
-  // add any (remaining) new items
-  for (int i = 0; i < newItems.Size(); i++)
-  {
-    if (checkCancelled && task->ShouldCancel(progress, items.Size()))
-      return false;
-
-    CFileItemPtr pItem = newItems[i];
-    PrepareItem(import, pItem.get(), musicdb);
-
-    task->SetProgressText(StringUtils::Format(g_localizeStrings.Get(37036).c_str(), pItem->GetLabel().c_str()));
-
-    std::string mbArtistId;
-    if (!pItem->GetMusicInfoTag()->GetMusicBrainzArtistID().empty())
-      mbArtistId = pItem->GetMusicInfoTag()->GetMusicBrainzArtistID().at(0);
-
-    pItem->GetMusicInfoTag()->SetDatabaseId(musicdb.AddArtist(pItem->GetLabel(), mbArtistId), MediaTypeArtist);
-    if (pItem->GetMusicInfoTag()->GetDatabaseId() > 0)
-    {
-      UpdateArtist(*pItem, musicdb);
-      SetImportForItem(pItem.get(), import, musicdb);
-    }
-
-    task->SetProgress(progress++, total);
-  }
-
-  return true;
+  return SetImportForItem(item, import);
 }
 
-void CArtistImportHandler::UpdateArtist(const CFileItem &artistItem, CMusicDatabase &musicdb)
+bool CArtistImportHandler::UpdateImportedItem(const CMediaImport &import, CFileItem* item)
+{
+  if (item == NULL || !item->HasMusicInfoTag())
+    return false;
+
+  return UpdateArtist(*item);
+}
+
+bool CArtistImportHandler::RemoveImportedItem(const CMediaImport &import, const CFileItem* item)
+{
+  if (item == NULL || !item->HasMusicInfoTag())
+    return false;
+
+  // TODO
+
+  return false;
+}
+
+bool CArtistImportHandler::GetLocalItems(CMusicDatabase &musicdb, const CMediaImport &import, CFileItemList& items)
+{
+  return musicdb.GetArtistsByWhere("musicdb://artists/", GetFilter(import), items);
+}
+
+CFileItemPtr CArtistImportHandler::FindMatchingLocalItem(const CFileItem* item, CFileItemList& localItems)
+{
+  for (int i = 0; i < localItems.Size(); ++i)
+  {
+    CFileItemPtr localItem = localItems.Get(i);
+    if (item->GetLabel() == localItem->GetLabel())
+      return localItem;
+  }
+
+  return CFileItemPtr();
+}
+
+bool CArtistImportHandler::UpdateArtist(const CFileItem &artistItem)
 {
   if (!artistItem.HasMusicInfoTag() || artistItem.GetMusicInfoTag()->GetDatabaseId() <= 0)
-    return;
+    return false;
 
   const MUSIC_INFO::CMusicInfoTag& artist = *artistItem.GetMusicInfoTag();
 
@@ -161,7 +106,7 @@ void CArtistImportHandler::UpdateArtist(const CFileItem &artistItem, CMusicDatab
   if (!artist.GetMusicBrainzArtistID().empty())
     mbArtistId = artist.GetMusicBrainzArtistID().at(0);
 
-  musicdb.UpdateArtist(artist.GetDatabaseId(), artistItem.GetLabel(), mbArtistId,
+  m_db.UpdateArtist(artist.GetDatabaseId(), artistItem.GetLabel(), mbArtistId,
     "", "", StringUtils::Join(artist.GetGenre(), g_advancedSettings.m_musicItemSeparator) /* TODO */,
     "", "", "", "", "", "", "", artistItem.GetArt("thumb"), artistItem.GetArt("fanart"));
   /* TODO
@@ -170,5 +115,7 @@ void CArtistImportHandler::UpdateArtist(const CFileItem &artistItem, CMusicDatab
     "styles", "instruments", "biography", "died",
     "disbanded", "yearsactive", "image", "fanart");
   */
-  musicdb.SetArtForItem(artist.GetDatabaseId(), MediaTypeArtist, artistItem.GetArt());
+  m_db.SetArtForItem(artist.GetDatabaseId(), MediaTypeArtist, artistItem.GetArt());
+
+  return true;
 }
