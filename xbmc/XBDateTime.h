@@ -41,8 +41,18 @@ enum TIME_FORMAT { TIME_FORMAT_GUESS       =  0,
                    TIME_FORMAT_HH_MM_XX    = 14,
                    TIME_FORMAT_HH_MM_SS_XX = 15,
                    TIME_FORMAT_H           = 16,
+                   TIME_FORMAT_H_SS        = 17,
+                   TIME_FORMAT_H_MM        = 18,
                    TIME_FORMAT_H_MM_SS     = 19,
-                   TIME_FORMAT_H_MM_SS_XX  = 27};
+                   TIME_FORMAT_H_MM_SS_XX  = 27,
+                   TIME_FORMAT_M           = 32,
+                   TIME_FORMAT_M_SS        = 33,
+                   TIME_FORMAT_H_M         = 48,
+                   TIME_FORMAT_H_M_XX      = 56,
+                   TIME_FORMAT_S           = 64,
+                   TIME_FORMAT_M_S         = 96,
+                   TIME_FORMAT_H_M_S       = 112,
+                   TIME_FORMAT_H_M_S_XX    = 120 };
 
 class CDateTime;
 

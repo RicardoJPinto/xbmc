@@ -1358,9 +1358,19 @@ TIME_FORMAT CGUIInfoManager::TranslateTimeFormat(const CStdString &format)
   else if (format.Equals("hh:mm:ss")) return TIME_FORMAT_HH_MM_SS;
   else if (format.Equals("hh:mm:ss xx")) return TIME_FORMAT_HH_MM_SS_XX;
   else if (format.Equals("h")) return TIME_FORMAT_H;
+  else if (format.Equals("h:ss")) return TIME_FORMAT_H_SS;
+  else if (format.Equals("h:mm")) return TIME_FORMAT_H_MM;
   else if (format.Equals("h:mm:ss")) return TIME_FORMAT_H_MM_SS;
   else if (format.Equals("h:mm:ss xx")) return TIME_FORMAT_H_MM_SS_XX;
   else if (format.Equals("xx")) return TIME_FORMAT_XX;
+  else if (format.Equals("m")) return TIME_FORMAT_M;
+  else if (format.Equals("m:ss")) return TIME_FORMAT_M_SS;
+  else if (format.Equals("s")) return TIME_FORMAT_S;
+  else if (format.Equals("h:m")) return TIME_FORMAT_H_M;
+  else if (format.Equals("h:m xx")) return TIME_FORMAT_H_M_XX;
+  else if (format.Equals("m:s")) return TIME_FORMAT_M_S;
+  else if (format.Equals("h:m:s")) return TIME_FORMAT_H_M_S;
+  else if (format.Equals("h:m:s xx")) return TIME_FORMAT_H_M_S_XX;
   return TIME_FORMAT_GUESS;
 }
 
@@ -3454,6 +3464,8 @@ CStdString CGUIInfoManager::LocalizeTime(const CDateTime &time, TIME_FORMAT form
     return time.GetAsLocalizedTime("mm:ss", true);
   case TIME_FORMAT_HH:  // this forces it to a 12 hour clock
     return time.GetAsLocalizedTime(use12hourclock ? "h" : "HH", false);
+  case TIME_FORMAT_HH_SS:
+    return time.GetAsLocalizedTime(use12hourclock ? "h:ss" : "HH:ss", false);
   case TIME_FORMAT_HH_MM:
     return time.GetAsLocalizedTime(use12hourclock ? "h:mm" : "HH:mm", false);
   case TIME_FORMAT_HH_MM_XX:
@@ -3464,12 +3476,32 @@ CStdString CGUIInfoManager::LocalizeTime(const CDateTime &time, TIME_FORMAT form
     return time.GetAsLocalizedTime(use12hourclock ? "hh:mm:ss xx" : "HH:mm:ss", true);
   case TIME_FORMAT_H:
     return time.GetAsLocalizedTime("h", false);
+  case TIME_FORMAT_H_SS:
+    return time.GetAsLocalizedTime("h:ss", true);
+  case TIME_FORMAT_H_MM:
+    return time.GetAsLocalizedTime("h:mm", true);
   case TIME_FORMAT_H_MM_SS:
     return time.GetAsLocalizedTime("h:mm:ss", true);
   case TIME_FORMAT_H_MM_SS_XX:
     return time.GetAsLocalizedTime("h:mm:ss xx", true);
   case TIME_FORMAT_XX:
     return use12hourclock ? time.GetAsLocalizedTime("xx", false) : "";
+  case TIME_FORMAT_M:
+    return time.GetAsLocalizedTime("m", true);
+  case TIME_FORMAT_M_SS:
+    return time.GetAsLocalizedTime("m:ss", true);
+  case TIME_FORMAT_S:
+    return time.GetAsLocalizedTime("s", true);
+  case TIME_FORMAT_H_M:
+    return time.GetAsLocalizedTime("h:m", true);
+  case TIME_FORMAT_H_M_XX:
+    return time.GetAsLocalizedTime("h:m xx", true);
+  case TIME_FORMAT_M_S:
+    return time.GetAsLocalizedTime("m:s", true);
+  case TIME_FORMAT_H_M_S:
+    return time.GetAsLocalizedTime("h:m:s", true);
+  case TIME_FORMAT_H_M_S_XX:
+    return time.GetAsLocalizedTime("h:m:s xx", true);
   default:
     break;
   }
