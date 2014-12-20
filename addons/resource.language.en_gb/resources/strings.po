@@ -12683,7 +12683,17 @@ msgctxt "#24086"
 msgid "Installing add-on..."
 msgstr ""
 
-#empty strings from id 24087 to 24088
+#. Label for the action provided by addon management events to jump to a specific Add-on
+#: xbmc/event/AddonManagementEvent.cpp
+msgctxt "#24087"
+msgid "View Add-on"
+msgstr ""
+
+#. Label for the action provided by media library events to jump to a specific path/file
+#: xbmc/event/MediaLibraryEvent.cpp
+msgctxt "#24088"
+msgid "View"
+msgstr ""
 
 msgctxt "#24089"
 msgid "Add-on restarts"
