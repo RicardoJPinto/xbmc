@@ -23,6 +23,8 @@
 #include "music/tags/MusicInfoTagLoaderFactory.h"
 #include "MusicAlbumInfo.h"
 #include "MusicInfoScraper.h"
+#include "events/EventLog.h"
+#include "events/MediaLibraryEvent.h"
 #include "filesystem/MusicDatabaseDirectory.h"
 #include "filesystem/MusicDatabaseDirectory/DirectoryNode.h"
 #include "Util.h"
@@ -972,6 +974,13 @@ loop:
       album.artist = StringUtils::Split(strTempArtist, g_advancedSettings.m_musicItemSeparator);
       goto loop;
     }
+    else
+    {
+      CEventLog::GetInstance().Add(EventPtr(new CMediaLibraryEvent(
+        MediaTypeAlbum, album.strPath, 24137,
+        StringUtils::Format(g_localizeStrings.Get(24138).c_str(), MediaTypeAlbum, album.strAlbum.c_str()),
+        CScraperUrl::GetThumbURL(album.thumbURL.GetFirstThumb()), CURL::GetRedacted(album.strPath), EventLevelWarning)));
+    }
   }
   else if (albumDownloadStatus == INFO_ADDED)
   {
@@ -1002,6 +1011,13 @@ loop:
       if (!CGUIKeyboardFactory::ShowAndGetInput(artist.strArtist, g_localizeStrings.Get(16025), false))
         return INFO_CANCELLED;
       goto loop;
+    }
+    else
+    {
+      CEventLog::GetInstance().Add(EventPtr(new CMediaLibraryEvent(
+        MediaTypeArtist, artist.strPath, 24137,
+        StringUtils::Format(g_localizeStrings.Get(24138).c_str(), MediaTypeArtist, artist.strArtist.c_str()),
+        CScraperUrl::GetThumbURL(artist.thumbURL.GetFirstThumb()), CURL::GetRedacted(artist.strPath), EventLevelWarning)));
     }
   }
   else if (artistDownloadStatus == INFO_ADDED)
