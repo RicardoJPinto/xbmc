@@ -891,7 +891,7 @@ void CGUIWindowVideoNav::GetContextButtons(int itemNumber, CContextButtons &butt
         if (!g_application.IsVideoScanning() && item->IsVideoDb() && item->HasVideoInfoTag() &&
            (item->GetVideoInfoTag()->m_type == MediaTypeMovie ||          // movies
             item->GetVideoInfoTag()->m_type == MediaTypeTvShow ||         // tvshows
-           (item->GetVideoInfoTag()->m_type == MediaTypeSeason && item->GetVideoInfoTag()->m_iSeason > 0) ||  // seasons without "all seasons" and "specials"
+            item->GetVideoInfoTag()->m_type == MediaTypeSeason ||         // seasons
             item->GetVideoInfoTag()->m_type == MediaTypeEpisode ||        // episodes
             item->GetVideoInfoTag()->m_type == MediaTypeMusicVideo ||     // musicvideos
             item->GetVideoInfoTag()->m_type == "tag" ||                   // tags
@@ -906,9 +906,6 @@ void CGUIWindowVideoNav::GetContextButtons(int itemNumber, CContextButtons &butt
           else
             buttons.Add(CONTEXT_BUTTON_SCAN, 13349);
         }
-
-        if (node == NODE_TYPE_SEASONS && item->m_bIsFolder)
-          buttons.Add(CONTEXT_BUTTON_SET_SEASON_ART, 13511);
 
         if (node == NODE_TYPE_ACTOR && !dir.IsAllItem(item->GetPath()) && item->m_bIsFolder)
         {
@@ -986,7 +983,6 @@ bool CGUIWindowVideoNav::OnContextButton(int itemNumber, CONTEXT_BUTTON button)
       return true;
     }
 
-  case CONTEXT_BUTTON_SET_SEASON_ART:
   case CONTEXT_BUTTON_SET_ACTOR_THUMB:
   case CONTEXT_BUTTON_SET_ARTIST_THUMB:
     {
