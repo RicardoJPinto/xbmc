@@ -182,7 +182,7 @@ void CVideoDatabase::CreateTables()
   m_pDS->exec("CREATE TABLE sets ( idSet integer primary key, strSet text)\n");
 
   CLog::Log(LOGINFO, "create seasons table");
-  m_pDS->exec("CREATE TABLE seasons ( idSeason integer primary key, idShow integer, season integer)");
+  m_pDS->exec("CREATE TABLE seasons ( idSeason integer primary key, idShow integer, season integer, name text)");
 
   CLog::Log(LOGINFO, "create art table");
   m_pDS->exec("CREATE TABLE art(art_id INTEGER PRIMARY KEY, media_id INTEGER, media_type TEXT, type TEXT, url TEXT)");
@@ -2309,8 +2309,12 @@ int CVideoDatabase::SetDetailsForSeason(const CVideoInfoTag& details, const std:
 
     SetArtForItem(idSeason, MediaTypeSeason, artwork);
 
+    std::string name;
+    if (!details.m_strSortTitle.empty())
+      name = details.m_strSortTitle;
+
     // and insert the new row
-    std::string sql = PrepareSQL("UPDATE seasons SET season=%i WHERE idSeason=%i", details.m_iSeason, idSeason);
+    std::string sql = PrepareSQL("UPDATE seasons SET season=%i, name='%s' WHERE idSeason=%i", details.m_iSeason, name.c_str(), idSeason);
     m_pDS->exec(sql.c_str());
     CommitTransaction();
 
@@ -2415,7 +2419,7 @@ int CVideoDatabase::AddSeason(int showID, int season)
   int seasonId = GetSeasonId(showID, season);
   if (seasonId < 0)
   {
-    if (ExecuteQuery(PrepareSQL("INSERT INTO seasons (idShow,season) VALUES(%i,%i)", showID, season)))
+    if (ExecuteQuery(PrepareSQL("INSERT INTO seasons (idShow,season,name) VALUES(%i,%i,'')", showID, season)))
       seasonId = (int)m_pDS->lastinsertid();
   }
   return seasonId;
@@ -4609,11 +4613,13 @@ void CVideoDatabase::UpdateTables(int iVersion)
     m_pDS->exec("DROP TABLE IF EXISTS tag");
     m_pDS->exec("ALTER TABLE tagnew RENAME TO tag");
   }
+  if (iVersion < 92)
+    m_pDS->exec("ALTER TABLE seasons ADD name text");
 }
 
 int CVideoDatabase::GetSchemaVersion() const
 {
-  return 91;
+  return 92;
 }
 
 void CVideoDatabase::CleanupActorLinkTablePre91(const std::string &linkTable, const std::string &linkTableIdActor, const std::string &linkTableIdMedia, int idActor, const std::string &strActor)
@@ -5904,6 +5910,7 @@ bool CVideoDatabase::GetSeasonsByWhere(const std::string& strBaseDir, const Filt
       int id = m_pDS->fv(VIDEODB_ID_SEASON_ID).get_asInt();
       int showId = m_pDS->fv(VIDEODB_ID_SEASON_TVSHOW_ID).get_asInt();
       int iSeason = m_pDS->fv(VIDEODB_ID_SEASON_NUMBER).get_asInt();
+      std::string name = m_pDS->fv(VIDEODB_ID_SEASON_NAME).get_asString();
       std::string path = m_pDS->fv(VIDEODB_ID_SEASON_TVSHOW_PATH).get_asString();
 
       if (mapSeasons.find(std::make_pair(showId, iSeason)) == mapSeasons.end() &&
@@ -5912,11 +5919,14 @@ bool CVideoDatabase::GetSeasonsByWhere(const std::string& strBaseDir, const Filt
       {
         mapSeasons.insert(std::make_pair(showId, iSeason));
 
-        std::string strLabel;
-        if (iSeason == 0)
-          strLabel = g_localizeStrings.Get(20381);
-        else
-          strLabel = StringUtils::Format(g_localizeStrings.Get(20358).c_str(), iSeason);
+        std::string strLabel = name;
+        if (strLabel.empty())
+        {
+          if (iSeason == 0)
+            strLabel = g_localizeStrings.Get(20381);
+          else
+            strLabel = StringUtils::Format(g_localizeStrings.Get(20358).c_str(), iSeason);
+        }
         CFileItemPtr pItem(new CFileItem(strLabel));
 
         CVideoDbUrl itemUrl = videoUrl;
@@ -5929,6 +5939,8 @@ bool CVideoDatabase::GetSeasonsByWhere(const std::string& strBaseDir, const Filt
 
         pItem->m_bIsFolder = true;
         pItem->GetVideoInfoTag()->m_strTitle = strLabel;
+        if (!name.empty())
+          pItem->GetVideoInfoTag()->m_strSortTitle = name;
         pItem->GetVideoInfoTag()->m_iSeason = iSeason;
         pItem->GetVideoInfoTag()->m_iDbId = id;
         pItem->GetVideoInfoTag()->m_type = MediaTypeSeason;
