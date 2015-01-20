@@ -146,7 +146,6 @@ foreach(addon ${addons})
         download_project(${id} "${def}" "${BUILD_DIR}")
 
         list(APPEND downloaded_addons ${id})
-
       endif()
     endif()
   endif()
