@@ -1,6 +1,39 @@
-# handle addon depends
-function(add_addon_depends addon searchpath)
-  # input: string addon string searchpath
+function(download_project project_id project_definition target_dir)
+  # get the URL and revision of the addon
+  list(LENGTH project_definition deflength)
+  list(GET project_definition 1 url)
+  list(GET project_definition 2 revision)
+
+  # download and extract all addons
+  if(deflength GREATER 2)
+    # if there is a 3rd parameter in the file, we consider it a git revision
+    # Note: downloading specific revisions via http in the format below is probably github specific
+    # if we ever use other repositories, this might need adapting
+    set(url ${url}/archive/${revision}.tar.gz)
+  endif()
+  if(NOT EXISTS ${target_dir}/download/${project_id}.tar.gz)
+    file(DOWNLOAD "${url}" "${target_dir}/download/${project_id}.tar.gz" STATUS dlstatus LOG dllog SHOW_PROGRESS)
+    list(GET dlstatus 0 retcode)
+    if(NOT ${retcode} EQUAL 0)
+      message(FATAL_ERROR "ERROR downloading ${url} - status: ${dlstatus} log: ${dllog}")
+    endif()
+  endif()
+  if(EXISTS "${target_dir}/${project_id}")
+    file(REMOVE_RECURSE "${target_dir}/${project_id}")
+  endif()
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzvf ${target_dir}/download/${project_id}.tar.gz
+                  WORKING_DIRECTORY ${target_dir})
+  file(GLOB extract_dir "${target_dir}/${project_id}-${revision}*")
+  if(extract_dir STREQUAL "")
+    message(FATAL_ERROR "Error extracting ${target_dir}/download/${project_id}.tar.gz")
+  else()
+    file(RENAME "${extract_dir}" "${target_dir}/${project_id}")
+  endif()
+endfunction()
+
+# handle addon/dependency depends
+function(add_project_depends project_id searchpath)
+  # input: string project_id string searchpath
 
   set(OUTPUT_DIR ${DEPENDS_PATH})
   file(GLOB_RECURSE cmake_input_files ${searchpath}/${CORE_SYSTEM_NAME}/*.txt)
@@ -146,8 +179,8 @@ function(add_addon_depends addon searchpath)
         endif()
       endif()
 
-      set(${addon}_DEPS ${${addon}_DEPS} ${id})
-      set(${addon}_DEPS "${${addon}_DEPS}" PARENT_SCOPE)
+      set(${project_id}_DEPS ${${project_id}_DEPS} ${id})
+      set(${project_id}_DEPS "${${project_id}_DEPS}" PARENT_SCOPE)
     endif()
   endforeach()
 endfunction()

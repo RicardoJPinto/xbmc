@@ -88,6 +88,8 @@ if(NOT WIN32)
   include(prepare-env)
 endif()
 
+include(${APP_ROOT}/project/cmake/scripts/common/handle-depends.cmake)
+
 add_subdirectory(depends)
 
 ### get and build all the binary addons
@@ -140,36 +142,8 @@ foreach(addon ${addons})
           file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}/${id}/")
         endif()
 
-        # get the URL and revision of the addon
-        list(LENGTH def deflength)
-        list(GET def 1 url)
-        list(GET def 2 revision)
-
-        # download and extract all addons
-        if(deflength GREATER 2)
-          # if there is a 3rd parameter in the file, we consider it a git revision
-          # Note: downloading specific revisions via http in the format below is probably github specific
-          # if we ever use other repositories, this might need adapting
-          set(url ${url}/archive/${revision}.tar.gz)
-        endif()
-        if(NOT EXISTS ${BUILD_DIR}/download/${id}.tar.gz)
-          file(DOWNLOAD "${url}" "${BUILD_DIR}/download/${id}.tar.gz" STATUS dlstatus LOG dllog SHOW_PROGRESS)
-          list(GET dlstatus 0 retcode)
-          if(NOT ${retcode} EQUAL 0)
-            message(FATAL_ERROR "ERROR downloading ${url} - status: ${dlstatus} log: ${dllog}")
-          endif()
-        endif()
-        if(EXISTS "${BUILD_DIR}/${id}")
-          file(REMOVE_RECURSE "${BUILD_DIR}/${id}")
-        endif()
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzvf ${BUILD_DIR}/download/${id}.tar.gz
-                        WORKING_DIRECTORY ${BUILD_DIR})
-        file(GLOB extract_dir "${BUILD_DIR}/${id}-${revision}*")
-        if(extract_dir STREQUAL "")
-          message(FATAL_ERROR "Error extracting ${BUILD_DIR}/download/${id}.tar.gz")
-        else()
-          file(RENAME "${extract_dir}" "${BUILD_DIR}/${id}")
-        endif()
+        # download the addon's project settings and source code
+        download_project(${id} "${def}" "${BUILD_DIR}")
 
         list(APPEND downloaded_addons ${id})
 
@@ -192,8 +166,7 @@ foreach(id ${downloaded_addons})
   set(${id}_DEPENDS_DIR ${BUILD_DIR}/${id}/depends)
 
   if(EXISTS ${${id}_DEPENDS_DIR})
-    include(${APP_ROOT}/project/cmake/scripts/common/handle-depends.cmake)
-    add_addon_depends(${id} ${${id}_DEPENDS_DIR})
+    add_project_depends(${id} ${${id}_DEPENDS_DIR})
     if (${id}_DEPS AND NOT "${${id}_DEPS}" STREQUAL "")
       message(STATUS "${id} DEPENDENCIES: ${${id}_DEPS}")
       add_dependencies(${id} ${${id}_DEPS})
