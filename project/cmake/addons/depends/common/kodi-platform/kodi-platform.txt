@@ -1,1 +1,1 @@
-kodi-platform https://github.com/Montellese/kodi-platform origin/master
+kodi-platform https://github.com/Montellese/kodi-platform origin/split_utils
