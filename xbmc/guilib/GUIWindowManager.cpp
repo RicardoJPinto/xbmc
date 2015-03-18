@@ -37,6 +37,7 @@
 #include "utils/StringUtils.h"
 
 #include "windows/GUIWindowHome.h"
+#include "events/windows/GUIWindowEventLog.h"
 #include "settings/windows/GUIWindowSettings.h"
 #include "windows/GUIWindowFileManager.h"
 #include "settings/windows/GUIWindowSettingsCategory.h"
@@ -295,6 +296,8 @@ void CGUIWindowManager::CreateWindows()
   Add(new CGUIWindowScreensaver);
   Add(new CGUIWindowWeather);
   Add(new CGUIWindowStartup);
+
+  Add(new CGUIWindowEventLog);
 }
 
 bool CGUIWindowManager::DestroyWindows()
@@ -410,6 +413,8 @@ bool CGUIWindowManager::DestroyWindows()
 
     Remove(WINDOW_DIALOG_SEEK_BAR);
     Remove(WINDOW_DIALOG_VOLUME_BAR);
+
+    Delete(WINDOW_EVENT_LOG);
   }
   catch (...)
   {
