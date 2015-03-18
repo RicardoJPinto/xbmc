@@ -6880,7 +6880,7 @@ msgstr ""
 
 #: system/settings/settings.xml
 msgctxt "#14092"
-msgid "Debugging"
+msgid "Logging"
 msgstr ""
 
 msgctxt "#14093"
@@ -6975,7 +6975,21 @@ msgctxt "#14110"
 msgid "Long date format"
 msgstr ""
 
-#empty strings from id 14111 to 15011
+#empty string with id 14111
+
+#. Label of setting to enable/disable event logging
+#: system/settings/settings.xml
+msgctxt "#14112"
+msgid "Enable event logging"
+msgstr ""
+
+#. Label of setting to enable/disable event logging for notifications
+#: system/settings/settings.xml
+msgctxt "#14113"
+msgid "Enable notification event logging"
+msgstr ""
+
+#empty strings from id 14114 to 15011
 
 #: xbmc/video/VideoDatabase.cpp
 msgctxt "#15012"
@@ -15596,25 +15610,25 @@ msgctxt "#36390"
 msgid "Define what action Kodi should do when it has been idle for a long period of time."
 msgstr ""
 
-#. Description of settings category "System -> Debugging" with label #14092
+#. Description of settings category "System -> Logging" with label #14092
 #: system/settings/settings.xml
 msgctxt "#36391"
-msgid "Category containing settings for debugging functions."
+msgid "Category containing settings for logging events and additional information."
 msgstr ""
 
-#. Description of setting "System -> Debugging -> Enable debug logging" with label #20191
+#. Description of setting "System -> Logging -> Enable debug logging" with label #20191
 #: system/settings/settings.xml
 msgctxt "#36392"
 msgid "Turn debug logging on or off. Useful for troubleshooting."
 msgstr ""
 
-#. Description of setting "System -> Debugging -> Screenshot folder" with label #20004
+#. Description of setting "System -> Logging -> Screenshot folder" with label #20004
 #: system/settings/settings.xml
 msgctxt "#36393"
 msgid "Folder used to save screenshots taken within Kodi."
 msgstr ""
 
-#. Description of setting "System -> Debugging -> Enable component-specific logging" with label #666
+#. Description of setting "System -> Logging -> Enable component-specific logging" with label #666
 #: system/settings/settings.xml
 msgctxt "#36394"
 msgid "Enables log messages from additional libraries to be included in the log."
@@ -15847,7 +15861,19 @@ msgctxt "#36435"
 msgid "Use DVDPlayer for decoding of video files with MMAL acceleration."
 msgstr ""
 
-#empty strings from id 36436 to 36499
+#. Description of settings "System -> Logging -> Enable event logging" with label #14112
+#: system/settings/settings.xml
+msgctxt "#36436"
+msgid "Event logging allows to keep track of what has happened."
+msgstr ""
+
+#. Description of settings "System -> Logging -> Enable notification event logging" with label #14113
+#: system/settings/settings.xml
+msgctxt "#36437"
+msgid "Notification event describe regular processes and actions performed by the system or the user."
+msgstr ""
+
+#empty strings from id 36438 to 36499
 #end reservation
 
 #. label of a setting for the stereoscopic 3D mode of the GUI that is/should be applied
@@ -15994,7 +16020,7 @@ msgctxt "#36533"
 msgid "Select how audio is downmixed, for example from 5.1 to 2.0: [Enabled] maintains volume level of the original audio source however the dynamic range is compressed. [Disabled] maintains the dynamic range of the original audio source when downmixed however volume will be lower. Note - Dynamic range is the difference between the quietest and loudest sounds in an audio source. Enable this setting if movie dialogues are barely audible."
 msgstr ""
 
-#. Description of setting "System -> Debugging -> Component-specific logging..." with label #668
+#. Description of setting "System -> Logging -> Component-specific logging..." with label #668
 #: system/settings/settings.xml
 msgctxt "#36534"
 msgid "Specify additional libraries whose log messages are to be included in the log."
