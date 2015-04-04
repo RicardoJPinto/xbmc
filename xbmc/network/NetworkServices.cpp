@@ -821,7 +821,7 @@ bool CNetworkServices::StopUPnP(bool bWait)
 bool CNetworkServices::StartUPnPClient()
 {
 #ifdef HAS_UPNP
-  if (!CSettings::Get().GetBool("services.upnpcontroller") ||
+  if (!CSettings::Get().GetBool("services.upnpcontroller") &&
       !CSettings::Get().GetBool("services.upnpserver"))
     return false;
 

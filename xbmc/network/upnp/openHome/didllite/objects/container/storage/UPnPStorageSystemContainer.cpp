@@ -1,0 +1,82 @@
+/*
+ *      Copyright (C) 2015 Team XBMC
+ *      http://xbmc.org
+ *
+ *  This Program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2, or (at your option)
+ *  any later version.
+ *
+ *  This Program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with XBMC; see the file COPYING.  If not, see
+ *  <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "UPnPStorageSystemContainer.h"
+#include "FileItem.h"
+#include "network/upnp/openHome/ohNet/ohUPnPDefinitions.h"
+
+CUPnPStorageSystemContainer::CUPnPStorageSystemContainer()
+  : CUPnPStorageSystemContainer("object.container.storageSystem")
+{ }
+
+CUPnPStorageSystemContainer::CUPnPStorageSystemContainer(const std::string& classType, const std::string& className /* = "" */)
+  : CUPnPContainer(classType, className),
+    m_storageTotal(0),
+    m_storageUsed(0),
+    m_storageFree(0),
+    m_storageMaxPartition(0)
+{
+  initializeProperties();
+}
+
+CUPnPStorageSystemContainer::CUPnPStorageSystemContainer(const CUPnPStorageSystemContainer& storageSystemContainer)
+  : CUPnPContainer(storageSystemContainer),
+    m_storageTotal(storageSystemContainer.m_storageTotal),
+    m_storageUsed(storageSystemContainer.m_storageUsed),
+    m_storageFree(storageSystemContainer.m_storageFree),
+    m_storageMaxPartition(storageSystemContainer.m_storageMaxPartition),
+    m_storageMedium(storageSystemContainer.m_storageMedium)
+{
+  initializeProperties();
+  copyPropertyValidity(&storageSystemContainer);
+}
+
+CUPnPStorageSystemContainer::~CUPnPStorageSystemContainer()
+{ }
+
+bool CUPnPStorageSystemContainer::ToFileItem(CFileItem& item) const
+{
+  if (!CUPnPContainer::ToFileItem(item))
+    return false;
+
+  // TODO
+
+  return true;
+}
+
+bool CUPnPStorageSystemContainer::FromFileItem(const CFileItem& item)
+{
+  if (!CUPnPContainer::FromFileItem(item))
+    return false;
+
+  // TODO
+
+  return true;
+}
+
+void CUPnPStorageSystemContainer::initializeProperties()
+{
+  // define all attributes
+  addIntegerProperty(UPNP_DIDL_UPNP_NAMESPACE, "storageTotal", &m_storageTotal).SetOptional();
+  addIntegerProperty(UPNP_DIDL_UPNP_NAMESPACE, "storageUsed", &m_storageUsed).SetOptional();
+  addIntegerProperty(UPNP_DIDL_UPNP_NAMESPACE, "storageFree", &m_storageFree).SetOptional();
+  addIntegerProperty(UPNP_DIDL_UPNP_NAMESPACE, "storageMaxPartition", &m_storageMaxPartition).SetOptional();
+  addStringProperty(UPNP_DIDL_UPNP_NAMESPACE, "storageMedium", &m_storageMedium).SetOptional();
+}

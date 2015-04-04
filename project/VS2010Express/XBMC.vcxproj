@@ -86,7 +86,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/IGNORE:4089 /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>D3dx9.lib;DInput8.lib;DSound.lib;winmm.lib;Mpr.lib;Iphlpapi.lib;PowrProf.lib;setupapi.lib;dwmapi.lib;yajl.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D3dx9.lib;DInput8.lib;DSound.lib;winmm.lib;Mpr.lib;Iphlpapi.lib;PowrProf.lib;setupapi.lib;dwmapi.lib;yajl.lib;dxguid.lib;ohNetCored.lib;ohNetDevicesd.lib;ohNetProxiesd.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <IgnoreSpecificDefaultLibraries>libcpmt;libc;msvcrt;libcmt;msvcrtd;msvcprtd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>
@@ -152,7 +152,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/IGNORE:4089 /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>D3dx9.lib;DInput8.lib;DSound.lib;winmm.lib;Mpr.lib;Iphlpapi.lib;PowrProf.lib;setupapi.lib;dwmapi.lib;yajl.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D3dx9.lib;DInput8.lib;DSound.lib;winmm.lib;Mpr.lib;Iphlpapi.lib;PowrProf.lib;setupapi.lib;dwmapi.lib;yajl.lib;dxguid.lib;ohNetCore.lib;ohNetDevices.lib;ohNetProxies.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <IgnoreSpecificDefaultLibraries>libc;msvcrt;libci;msvcprt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>libxslt.dll;dnssd.dll;dwmapi.dll;ssh.dll;sqlite3.dll;avcodec-56.dll;avfilter-5.dll;avformat-56.dll;avutil-54.dll;postproc-53.dll;swresample-1.dll;swscale-3.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -654,6 +654,41 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Testsuite|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\network\UdpClient.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\controlpoints\ohUPnPContentDirectoryControlPoint.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteDocument.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteElementFactory.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteElementProperty.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteUtils.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\IDidlLiteElement.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\classmappers\IUPnPClassMapper.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\classmappers\UPnPClassMapping.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\album\UPnPAlbumContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\album\UPnPMusicAlbumContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\album\UPnPPhotoAlbumContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\genre\UPnPGenreContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\genre\UPnPMovieGenreContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\genre\UPnPMusicGenreContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\person\UPnPMusicArtistPersonContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\person\UPnPPersonContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\storage\UPnPStorageFolderContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\storage\UPnPStorageSystemContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\storage\UPnPStorageVolumeContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\UPnPContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\UPnPPlaylistContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\FileItemUtils.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\image\UPnPImageItem.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\image\UPnPPhotoImageItem.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\UPnPItem.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\video\UPnPMovieVideoItem.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\video\UPnPVideoItem.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPClass.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPGenre.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPObject.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPPerson.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPRating.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPResource.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\ohnet\ohUPnPControlPointDevice.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\openHome\ohUPnP.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnP.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnPInternal.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnPPlayer.cpp" />
@@ -965,6 +1000,46 @@
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonRequest.h" />
     <ClInclude Include="..\..\xbmc\network\httprequesthandler\python\HTTPPythonWsgiInvoker.h" />
     <ClInclude Include="..\..\xbmc\network\NetworkServices.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\controlpoints\ohUPnPContentDirectoryControlPoint.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteDocument.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteElementFactory.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteElementProperty.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\DidlLiteUtils.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\IDidlLiteElement.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\classmappers\IUPnPClassMapper.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\classmappers\SimpleUPnPClassMapper.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\classmappers\UPnPClassMapping.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\album\UPnPAlbumContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\album\UPnPMusicAlbumContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\album\UPnPPhotoAlbumContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\genre\UPnPGenreContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\genre\UPnPMovieGenreContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\genre\UPnPMusicGenreContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\person\UPnPMusicArtistPersonContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\person\UPnPPersonContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\storage\UPnPStorageFolderContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\storage\UPnPStorageSystemContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\storage\UPnPStorageVolumeContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\UPnPContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\container\UPnPPlaylistContainer.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\FileItemUtils.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\IFileItemElement.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\image\UPnPImageItem.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\image\UPnPPhotoImageItem.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\UPnPItem.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\video\UPnPMovieVideoItem.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\item\video\UPnPVideoItem.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPClass.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPGenre.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPObject.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPPerson.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPRating.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\didllite\objects\UPnPResource.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\ohnet\ohUPnPControlPoint.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\ohnet\ohUPnPControlPointDevice.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\ohnet\ohUPnPDefinitions.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\ohnet\UPnPIcon.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\openHome\ohUPnP.h" />
     <ClInclude Include="..\..\xbmc\peripherals\bus\virtual\PeripheralBusCEC.h" />
     <ClInclude Include="..\..\xbmc\network\upnp\UPnPSettings.h" />
     <ClInclude Include="..\..\xbmc\playlists\SmartPlaylistFileItemListModifier.h" />
