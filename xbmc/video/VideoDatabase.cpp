@@ -2335,6 +2335,9 @@ bool CVideoDatabase::UpdateDetailsForTvShow(int idTvShow, const CVideoInfoTag &d
   AddLinksToItem(idTvShow, MediaTypeTvShow, "tag", details.m_tags);
   AddActorLinksToItem(idTvShow, MediaTypeTvShow, "director", details.m_director);
 
+  // add "all seasons" - the rest are added in SetDetailsForEpisode
+  AddSeason(idTvShow, -1);
+
   SetArtForItem(idTvShow, MediaTypeTvShow, artwork);
   for (map<int, map<string, string> >::const_iterator i = seasonArt.begin(); i != seasonArt.end(); ++i)
   {
@@ -4773,13 +4776,11 @@ void CVideoDatabase::UpdateTables(int iVersion)
     m_pDS->exec("DROP TABLE IF EXISTS tag");
     m_pDS->exec("ALTER TABLE tagnew RENAME TO tag");
   }
-  if (iVersion < 92)
-    m_pDS->exec("DELETE FROM seasons WHERE season < 0");
 }
 
 int CVideoDatabase::GetSchemaVersion() const
 {
-  return 92;
+  return 93;
 }
 
 void CVideoDatabase::CleanupActorLinkTablePre91(const std::string &linkTable, const std::string &linkTableIdActor, const std::string &linkTableIdMedia, int idActor, const std::string &strActor)
