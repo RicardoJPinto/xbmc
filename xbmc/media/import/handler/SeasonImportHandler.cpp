@@ -21,6 +21,7 @@
 #include "SeasonImportHandler.h"
 #include "FileItem.h"
 #include "media/import/IMediaImportTask.h"
+#include "utils/log.h" // TODO: REMOVE
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "video/VideoDatabase.h"
@@ -235,7 +236,13 @@ bool CSeasonImportHandler::CleanupImportedItems(const CMediaImport &import)
 
     // if there no imported episodes we can remove the tvshow
     if (!hasImportedEpisodes)
+    {
+      CLog::Log(LOGDEBUG, "CSeasonImportHandler: removing season %d (%d) of %s (%d) with %d episodes",
+        importedSeason->GetVideoInfoTag()->m_iSeason, importedSeason->GetVideoInfoTag()->m_iDbId,
+        importedSeason->GetVideoInfoTag()->m_strShowTitle.c_str(), importedSeason->GetVideoInfoTag()->m_iIdShow,
+        episodes.Size()); // TODO: REMOVE
       RemoveImportedItem(m_db, import, importedSeason.get());
+    }
   }
 
   m_db.CommitTransaction();
@@ -285,9 +292,21 @@ void CSeasonImportHandler::RemoveImportedItem(CVideoDatabase &videodb, const CMe
 
   // if there are other episodes only remove the import link to the season and not the whole season
   if (item->GetVideoInfoTag()->m_iEpisode > 0)
+  {
+    CLog::Log(LOGDEBUG, "CSeasonImportHandler: only remove link to imported season %d (%d) of %s (%d) with %d episodes",
+      item->GetVideoInfoTag()->m_iSeason, item->GetVideoInfoTag()->m_iDbId,
+      item->GetVideoInfoTag()->m_strShowTitle.c_str(), item->GetVideoInfoTag()->m_iIdShow,
+      item->GetVideoInfoTag()->m_iEpisode); // TODO: REMOVE
     videodb.RemoveImportFromItem(item->GetVideoInfoTag()->m_iDbId, import);
+  }
   else
+  {
+    CLog::Log(LOGDEBUG, "CSeasonImportHandler: remove complete imported season %d (%d) of %s (%d) with %d episodes",
+      item->GetVideoInfoTag()->m_iSeason, item->GetVideoInfoTag()->m_iDbId,
+      item->GetVideoInfoTag()->m_strShowTitle.c_str(), item->GetVideoInfoTag()->m_iIdShow,
+      item->GetVideoInfoTag()->m_iEpisode); // TODO: REMOVE
     videodb.DeleteSeason(item->GetVideoInfoTag()->m_iDbId, false, false);
+  }
 }
 
 int CSeasonImportHandler::FindTvShowId(const CFileItem* seasonItem)

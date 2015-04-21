@@ -20,6 +20,7 @@
 
 #include "TvShowImportHandler.h"
 #include "FileItem.h"
+#include "utils/log.h" // TODO: REMOVE
 #include "utils/StringUtils.h"
 #include "utils/URIUtils.h"
 #include "video/VideoDatabase.h"
@@ -217,7 +218,12 @@ bool CTvShowImportHandler::CleanupImportedItems(const CMediaImport &import)
 
     // if there are no imported episodes we can remove the tvshow
     if (!hasImportedEpisodes)
+    {
+      CLog::Log(LOGDEBUG, "CTvShowImportHandler: removing tvshow %s (%d) with %d episodes",
+        importedTvShow->GetVideoInfoTag()->m_strShowTitle.c_str(), importedTvShow->GetVideoInfoTag()->m_iDbId,
+        episodes.Size()); // TODO: REMOVE
       RemoveImportedItem(m_db, import, importedTvShow.get());
+    }
   }
 
   m_db.CommitTransaction();
@@ -276,4 +282,8 @@ void CTvShowImportHandler::RemoveImportedItem(CVideoDatabase &videodb, const CMe
 
   // either way remove the path
   videodb.DeletePath(-1, item->GetVideoInfoTag()->m_strPath);
+  CLog::Log(LOGDEBUG, "CTvShowImportHandler: remove path %s of imported tvshow %s (%d) with %d episodes",
+    item->GetVideoInfoTag()->m_strPath.c_str(),
+    item->GetVideoInfoTag()->m_strShowTitle.c_str(), item->GetVideoInfoTag()->m_iDbId,
+    item->GetVideoInfoTag()->m_iEpisode); // TODO: REMOVE
 }
