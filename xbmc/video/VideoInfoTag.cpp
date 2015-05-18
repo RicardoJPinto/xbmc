@@ -34,9 +34,14 @@
 
 using namespace std;
 
+CVideoInfoTag::CVideoInfoTag()
+{
+  Reset();
+}
+
 void CVideoInfoTag::Reset()
 {
-  m_director.clear();
+  m_directors.clear();
   m_writingCredits.clear();
   m_genre.clear();
   m_country.clear();
@@ -177,7 +182,7 @@ bool CVideoInfoTag::Save(TiXmlNode *node, const std::string &tag, bool savePathI
   XMLUtils::SetString(movie, "set", m_strSet);
   XMLUtils::SetStringArray(movie, "tag", m_tags);
   XMLUtils::SetStringArray(movie, "credits", m_writingCredits);
-  XMLUtils::SetStringArray(movie, "director", m_director);
+  XMLUtils::SetStringArray(movie, "director", m_directors);
   XMLUtils::SetDate(movie, "premiered", m_premiered);
   XMLUtils::SetString(movie, "status", m_strStatus);
   XMLUtils::SetString(movie, "code", m_strProductionCode);
@@ -260,7 +265,7 @@ void CVideoInfoTag::Archive(CArchive& ar)
 {
   if (ar.IsStoring())
   {
-    ar << m_director;
+    ar << m_directors;
     ar << m_writingCredits;
     ar << m_genre;
     ar << m_country;
@@ -331,7 +336,7 @@ void CVideoInfoTag::Archive(CArchive& ar)
   }
   else
   {
-    ar >> m_director;
+    ar >> m_directors;
     ar >> m_writingCredits;
     ar >> m_genre;
     ar >> m_country;
@@ -413,7 +418,7 @@ void CVideoInfoTag::Archive(CArchive& ar)
 
 void CVideoInfoTag::Serialize(CVariant& value) const
 {
-  value["director"] = m_director;
+  value["director"] = m_directors;
   value["writer"] = m_writingCredits;
   value["genre"] = m_genre;
   value["country"] = m_country;
@@ -483,7 +488,7 @@ void CVideoInfoTag::ToSortable(SortItem& sortable, Field field) const
 {
   switch (field)
   {
-  case FieldDirector:                 sortable[FieldDirector] = m_director; break;
+  case FieldDirector:                 sortable[FieldDirector] = m_directors; break;
   case FieldWriter:                   sortable[FieldWriter] = m_writingCredits; break;
   case FieldGenre:                    sortable[FieldGenre] = m_genre; break;
   case FieldCountry:                  sortable[FieldCountry] = m_country; break;
@@ -645,7 +650,11 @@ void CVideoInfoTag::ParseNative(const TiXmlElement* movie, bool prioritise)
   XMLUtils::GetStringArray(movie, "genre", m_genre, prioritise, g_advancedSettings.m_videoItemSeparator);
   XMLUtils::GetStringArray(movie, "country", m_country, prioritise, g_advancedSettings.m_videoItemSeparator);
   XMLUtils::GetStringArray(movie, "credits", m_writingCredits, prioritise, g_advancedSettings.m_videoItemSeparator);
-  XMLUtils::GetStringArray(movie, "director", m_director, prioritise, g_advancedSettings.m_videoItemSeparator);
+
+  std::vector<std::string> stringVector;
+  XMLUtils::GetStringArray(movie, "director", stringVector, prioritise, g_advancedSettings.m_videoItemSeparator);
+  SetDirectors(stringVector);
+
   XMLUtils::GetStringArray(movie, "showlink", m_showLink, prioritise, g_advancedSettings.m_videoItemSeparator);
 
   // cast
@@ -820,4 +829,41 @@ unsigned int CVideoInfoTag::GetDurationFromMinuteString(const std::string &runti
     CLog::Log(LOGWARNING, "%s <runtime> should be in minutes. Interpreting '%s' as %u minutes", __FUNCTION__, runtime.c_str(), duration);
   }
   return duration*60;
+}
+
+void CVideoInfoTag::SetStringVector(const std::string& value, std::vector<std::string>& stringVector)
+{
+  // clear the string vector
+  stringVector.clear();
+
+  // add the value to the string vector
+  AddToStringVector(value, stringVector);
+}
+
+void CVideoInfoTag::SetStringVector(const std::vector<std::string>& values, std::vector<std::string>& stringVector)
+{
+  // clear the string vector
+  stringVector.clear();
+
+  // add the values to the string vector
+  AddToStringVector(values, stringVector);
+}
+
+void CVideoInfoTag::AddToStringVector(const std::string& value, std::vector<std::string>& stringVector)
+{
+  // prepare the value by trimming any leading and trailing whitespaces
+  std::string preparedValue = value;
+  StringUtils::Trim(preparedValue);
+
+  // ignore an empty value
+  if (preparedValue.empty())
+    return;
+
+  stringVector.push_back(preparedValue);
+}
+
+void CVideoInfoTag::AddToStringVector(const std::vector<std::string>& values, std::vector<std::string>& stringVector)
+{
+  for (const auto& value : values)
+    AddToStringVector(value, stringVector);
 }

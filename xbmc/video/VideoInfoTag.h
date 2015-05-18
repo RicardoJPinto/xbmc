@@ -49,8 +49,19 @@ struct SActorInfo
 class CVideoInfoTag : public IArchivable, public ISerializable, public ISortable
 {
 public:
-  CVideoInfoTag() { Reset(); };
+  CVideoInfoTag();
+
+  // implementation of IArchivable
+  virtual void Archive(CArchive& ar);
+
+  // implementation of ISerializable
+  virtual void Serialize(CVariant& value) const;
+
+  // implementation of ISortable
+  virtual void ToSortable(SortItem& sortable, Field field) const;
+
   void Reset();
+
   /* \brief Load information to a videoinfotag from an XML element
    There are three types of tags supported:
     1. Single-value tags, such as <title>.  These are set if available, else are left untouched.
@@ -68,19 +79,30 @@ public:
    */
   bool Load(const TiXmlElement *element, bool append = false, bool prioritise = false);
   bool Save(TiXmlNode *node, const std::string &tag, bool savePathInfo = true, const TiXmlElement *additionalNode = NULL);
-  virtual void Archive(CArchive& ar);
-  virtual void Serialize(CVariant& value) const;
-  virtual void ToSortable(SortItem& sortable, Field field) const;
+
+  bool IsEmpty() const;
+
+  const std::string& GetBasePath() const { return m_basePath; }
+  void SetBasePath(const std::string& basePath) { m_basePath = basePath; }
+
+  int GetParentPathId() const { return m_parentPathID; }
+  void SetParenthPathId(int parentPathID) { m_parentPathID = parentPathID; }
+
+  const std::vector<std::string>& GetDirectors() const { return m_directors; }
+  void SetDirector(const std::string& director) { SetStringVector(director, m_directors); }
+  void AddDirector(const std::string& director) { AddToStringVector(director, m_directors); }
+  void SetDirectors(const std::vector<std::string>& directors) { SetStringVector(directors, m_directors); }
+  void AddDirectors(const std::vector<std::string>& directors) { AddToStringVector(directors, m_directors); }
+
   const std::string GetCast(bool bIncludeRole = false) const;
   bool HasStreamDetails() const;
-  bool IsEmpty() const;
 
   const std::string& GetPath() const
   {
     if (m_strFileNameAndPath.empty())
       return m_strPath;
     return m_strFileNameAndPath;
-  };
+  }
 
   /*! \brief retrieve the duration in seconds.
    Prefers the duration from stream details if available.
@@ -93,9 +115,6 @@ public:
    */
   static unsigned int GetDurationFromMinuteString(const std::string &runtime);
 
-  std::string m_basePath; // the base path of the video, for folder-based lookups
-  int m_parentPathID;      // the parent path id where the base path of the video lies
-  std::vector<std::string> m_director;
   std::vector<std::string> m_writingCredits;
   std::vector<std::string> m_genre;
   std::vector<std::string> m_country;
@@ -161,6 +180,16 @@ private:
    \sa Load
    */
   void ParseNative(const TiXmlElement* element, bool prioritise);
+
+  static void SetStringVector(const std::string& value, std::vector<std::string>& stringVector);
+  static void SetStringVector(const std::vector<std::string>& values, std::vector<std::string>& stringVector);
+  static void AddToStringVector(const std::string& value, std::vector<std::string>& stringVector);
+  static void AddToStringVector(const std::vector<std::string>& values, std::vector<std::string>& stringVector);
+
+  std::string m_basePath; // the base path of the video, for folder-based lookups
+  int m_parentPathID;      // the parent path id where the base path of the video lies
+
+  std::vector<std::string> m_directors;
 };
 
 typedef std::vector<CVideoInfoTag> VECMOVIES;
